@@ -31,6 +31,11 @@ const Navbar = () => {
             </Link>
           </li>
         </ul>
+        <div className="navbar-actions">
+          <Link to="/login" className={`navbar-button ${isActive('/login')}`}>
+            Đăng Nhập
+          </Link>
+        </div>
       </div>
     </nav>
   )
