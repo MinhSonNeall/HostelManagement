@@ -22,8 +22,7 @@ function App() {
 
         {/* Routes cho Admin */}
         <Route path="/owner/dashboard" element={<Layout><Home /></Layout>} />
-        <Route path="/admin/rooms" element={<Layout><Rooms /></Layout>} />
-        <Route path="/admin/tenants" element={<Layout><Tenants /></Layout>} />
+        
       </Routes>
     </Router>
     </AuthProvider>

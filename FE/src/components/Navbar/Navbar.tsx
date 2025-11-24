@@ -8,43 +8,73 @@ const Navbar = () => {
   const location = useLocation()
   const navigate = useNavigate()
   const { user, logout, isAuthenticated } = useAuth()
-  const [showDropdown, setShowDropdown] = useState(false)
-  const dropdownRef = useRef<HTMLDivElement>(null)
+  const [isPopupOpen, setPopupOpen] = useState(false)
+  const buttonRef = useRef<HTMLButtonElement>(null)
+  const popupRef = useRef<HTMLDivElement>(null)
 
   const isActive = (path: string) => {
     return location.pathname === path ? 'active' : ''
   }
 
-  // Đóng dropdown khi click bên ngoài
+  const displayName = user?.fullName || user?.username || 'User'
+  const formattedBalance =
+    typeof user?.balance === 'number'
+      ? user.balance.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })
+      : 'Chưa cập nhật'
+
+  // Đóng popup khi click bên ngoài
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setShowDropdown(false)
+      if (
+        popupRef.current &&
+        !popupRef.current.contains(event.target as Node) &&
+        buttonRef.current &&
+        !buttonRef.current.contains(event.target as Node)
+      ) {
+        setPopupOpen(false)
       }
     }
 
-    if (showDropdown) {
+    if (isPopupOpen) {
       document.addEventListener('mousedown', handleClickOutside)
     }
 
     return () => {
       document.removeEventListener('mousedown', handleClickOutside)
     }
-  }, [showDropdown])
+  }, [isPopupOpen])
+
+  // Đóng popup khi nhấn ESC
+  useEffect(() => {
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setPopupOpen(false)
+      }
+    }
+
+    if (isPopupOpen) {
+      document.addEventListener('keydown', handleEscape)
+    }
+
+    return () => {
+      document.removeEventListener('keydown', handleEscape)
+    }
+  }, [isPopupOpen])
+
+  useEffect(() => {
+    setPopupOpen(false)
+  }, [location.pathname])
 
   const handleLogout = async () => {
     await logout()
-    setShowDropdown(false)
+    setPopupOpen(false)
     navigate('/login')
   }
 
   const handlePersonalInfo = () => {
-    setShowDropdown(false)
-    // Có thể navigate đến trang thông tin cá nhân sau này
-    alert('Tính năng thông tin cá nhân đang được phát triển')
+    setPopupOpen(false)
+    navigate('/profile')
   }
-
-  const displayName = user?.fullName || user?.username || 'User'
 
   return (
     <nav className="navbar">
@@ -71,32 +101,59 @@ const Navbar = () => {
         </ul>
         <div className="navbar-actions">
           {isAuthenticated ? (
-            <div className="user-menu" ref={dropdownRef}>
+            <div className="user-popup-container">
               <button
+                ref={buttonRef}
                 className="user-menu-button"
-                onClick={() => setShowDropdown(!showDropdown)}
+                onClick={() => setPopupOpen(!isPopupOpen)}
               >
                 Chào mừng, {displayName}
               </button>
-              {showDropdown && (
-                <div className="user-dropdown">
-                  <button
-                    className="dropdown-item"
-                    onClick={handlePersonalInfo}
-                  >
-                    Thông tin cá nhân
-                  </button>
-                  {user?.role === UserRole.CUSTOMER && user.balance !== undefined && (
-                    <div className="dropdown-item balance-item">
-                      Số dư tài khoản: {user.balance.toLocaleString('vi-VN')} VNĐ
+              {isPopupOpen && (
+                <div className="user-popup" ref={popupRef}>
+                  <div className="popup-header">
+                    <h3>Thông tin tài khoản</h3>
+                    <button 
+                      className="popup-close"
+                      onClick={() => setPopupOpen(false)}
+                    >
+                      ×
+                    </button>
+                  </div>
+                  <div className="popup-content">
+                    <div className="user-info">
+                      <div className="info-item">
+                        <span className="info-label">Tên người dùng:</span>
+                        <span className="info-value">{displayName}</span>
+                      </div>
+                      {user?.email && (
+                        <div className="info-item">
+                          <span className="info-label">Email:</span>
+                          <span className="info-value">{user.email}</span>
+                        </div>
+                      )}
+                      {user?.role === UserRole.CUSTOMER && user.balance !== undefined && (
+                        <div className="info-item balance">
+                          <span className="info-label">Số dư tài khoản:</span>
+                          <span className="info-value balance-value">{formattedBalance}</span>
+                        </div>
+                      )}
                     </div>
-                  )}
-                  <button
-                    className="dropdown-item"
-                    onClick={handleLogout}
-                  >
-                    Đăng xuất
-                  </button>
+                    <div className="popup-actions">
+                      <button 
+                        className="popup-btn primary"
+                        onClick={handlePersonalInfo}
+                      >
+                        Thông tin cá nhân
+                      </button>
+                      <button 
+                        className="popup-btn logout"
+                        onClick={handleLogout}
+                      >
+                        Đăng xuất
+                      </button>
+                    </div>
+                  </div>
                 </div>
               )}
             </div>

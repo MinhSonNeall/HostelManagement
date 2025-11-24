@@ -24,7 +24,7 @@ const Login = () => {
       if (user.role === UserRole.HOSTEL_OWNER) {
         navigate('/owner/dashboard')
       } else if (user.role === UserRole.CUSTOMER) {
-        navigate('/customer/dashboard')
+        navigate('/')
       }
     } catch (err: any) {
       setError(err.response?.data?.message || 'Đăng nhập thất bại. Vui lòng thử lại.')
