@@ -1,0 +1,84 @@
+{
+  "users": [
+    {
+      "id": "1",
+      "username": "owner",
+      "password": "owner123",
+      "email": "owner@hostel.com",
+      "role": "HOSTEL_OWNER",
+      "fullName": "Nguyễn Văn Chủ"
+    },
+    {
+      "id": "2",
+      "username": "customer",
+      "password": "customer123",
+      "email": "customer@example.com",
+      "role": "CUSTOMER",
+      "fullName": "Trần Thị Khách",
+      "balance": 5000000
+    }
+  ],
+  "rooms": [
+    {
+      "id": "1",
+      "roomNumber": "101",
+      "floor": 1,
+      "area": 25,
+      "price": 2000000,
+      "status": "AVAILABLE",
+      "description": "Phòng rộng rãi, có cửa sổ, đầy đủ tiện nghi"
+    },
+    {
+      "id": "2",
+      "roomNumber": "102",
+      "floor": 1,
+      "area": 20,
+      "price": 1800000,
+      "status": "OCCUPIED",
+      "description": "Phòng nhỏ gọn, phù hợp cho 1 người"
+    },
+    {
+      "id": "3",
+      "roomNumber": "201",
+      "floor": 2,
+      "area": 30,
+      "price": 2500000,
+      "status": "AVAILABLE",
+      "description": "Phòng lớn, có ban công, view đẹp"
+    },
+    {
+      "id": "4",
+      "roomNumber": "202",
+      "floor": 2,
+      "area": 22,
+      "price": 1900000,
+      "status": "MAINTENANCE",
+      "description": "Đang sửa chữa"
+    }
+  ],
+  "tenants": [
+    {
+      "id": "1",
+      "fullName": "Trần Thị Khách",
+      "phoneNumber": "0901234567",
+      "email": "customer@example.com",
+      "idCard": "001234567890",
+      "roomId": "2",
+      "startDate": "2024-01-01",
+      "endDate": "2024-12-31"
+    }
+  ],
+  "contracts": [
+    {
+      "id": "1",
+      "tenantId": "1",
+      "roomId": "2",
+      "startDate": "2024-01-01",
+      "endDate": "2024-12-31",
+      "monthlyRent": 1800000,
+      "deposit": 3600000,
+      "status": "ACTIVE"
+    }
+  ]
+}
+

@@ -45,3 +45,19 @@ export enum ContractStatus {
   TERMINATED = 'TERMINATED'
 }
 
+// User Role
+export enum UserRole {
+  HOSTEL_OWNER = 'HOSTEL_OWNER',
+  CUSTOMER = 'CUSTOMER'
+}
+
+// User
+export interface User {
+  id: string
+  username: string
+  email?: string
+  role: UserRole
+  fullName?: string
+  balance?: number
+}
+
