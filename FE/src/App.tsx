@@ -4,9 +4,8 @@ import Layout from './components/Layout/Layout'
 import GuestLayout from './components/Layout/GuestLayout'
 import Home from './pages/Home/Home'
 import GuestHome from './pages/Home/GuestHome'
-import Rooms from './pages/Rooms/Rooms'
-import Tenants from './pages/Tenants/Tenants'
 import Login from './pages/Login/Login'
+import Register from './pages/Register/Register'
 import './App.css'
 
 function App() {
@@ -17,8 +16,8 @@ function App() {
       <Routes>
         {/* Routes cho Guest */}
         <Route path="/" element={<GuestLayout><GuestHome /></GuestLayout>} />
-        <Route path="/login" element={<GuestLayout><Login /></GuestLayout>
-        } />
+        <Route path="/login" element={<GuestLayout><Login /></GuestLayout>} />
+        <Route path="/register" element={<GuestLayout><Register /></GuestLayout>} />
 
         {/* Routes cho Admin */}
         <Route path="/owner/dashboard" element={<Layout><Home /></Layout>} />

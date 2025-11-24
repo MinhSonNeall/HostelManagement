@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
 import { UserRole } from '../../types'
 import './Login.css'
@@ -67,6 +67,10 @@ const Login = () => {
             {loading ? 'Đang đăng nhập...' : 'Đăng Nhập'}
           </button>
         </form>
+        <div className="register-link">
+          <span>Chưa có tài khoản? </span>
+          <Link to="/register">Đăng ký</Link>
+        </div>
       </div>
     </div>
   )

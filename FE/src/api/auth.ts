@@ -1,5 +1,6 @@
 import apiClient from './axios'
-import type { User, UserRole } from '../types'
+import type { User } from '../types'
+import { UserRole } from '../types'
 
 export interface LoginCredentials {
   username: string
@@ -9,6 +10,15 @@ export interface LoginCredentials {
 export interface LoginResponse {
   token: string
   user: User
+}
+
+export interface RegisterData {
+  username: string
+  password: string
+  email?: string
+  fullName?: string
+  phoneNumber?: string
+  role: UserRole
 }
 
 // API functions cho Authentication
@@ -67,6 +77,65 @@ export const authApi = {
   logout: async (): Promise<void> => {
     localStorage.removeItem('token')
     localStorage.removeItem('user')
+  },
+
+  // Đăng ký tài khoản mới
+  register: async (data: RegisterData): Promise<LoginResponse> => {
+    try {
+      // Kiểm tra username đã tồn tại chưa
+      const response = await apiClient.get('/users')
+      const users = response.data
+
+      const existingUser = users.find((u: any) => u.username === data.username)
+      if (existingUser) {
+        const error: any = new Error('Tên đăng nhập đã tồn tại')
+        error.response = { data: { message: 'Tên đăng nhập đã tồn tại' } }
+        throw error
+      }
+
+      // Tạo user mới
+      const newUser = {
+        id: `user-${Date.now()}`,
+        username: data.username,
+        password: data.password,
+        email: data.email || '',
+        fullName: data.fullName || '',
+        phoneNumber: data.phoneNumber || '',
+        role: data.role,
+        balance: data.role === UserRole.CUSTOMER ? 0 : undefined,
+      }
+
+      // Thêm user vào db.json
+      await apiClient.post('/users', newUser)
+
+      // Tạo token và đăng nhập tự động
+      const token = `fake-jwt-token-${newUser.id}-${Date.now()}`
+
+      const userData: User = {
+        id: newUser.id,
+        username: newUser.username,
+        email: newUser.email,
+        role: newUser.role as UserRole,
+        fullName: newUser.fullName,
+        balance: newUser.balance,
+      }
+
+      // Lưu token vào localStorage
+      localStorage.setItem('token', token)
+      localStorage.setItem('user', JSON.stringify(userData))
+
+      return {
+        token,
+        user: userData,
+      }
+    } catch (error: any) {
+      if (!error.response) {
+        const newError: any = new Error('Đăng ký thất bại. Vui lòng thử lại.')
+        newError.response = { data: { message: 'Đăng ký thất bại. Vui lòng thử lại.' } }
+        throw newError
+      }
+      throw error
+    }
   },
 
   // Lấy thông tin user hiện tại
