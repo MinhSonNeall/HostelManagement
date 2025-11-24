@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import { AuthProvider } from './contexts/AuthContext'
 import Layout from './components/Layout/Layout'
 import GuestLayout from './components/Layout/GuestLayout'
 import Home from './pages/Home/Home'
@@ -10,6 +11,7 @@ import './App.css'
 
 function App() {
   return (
+
     <Router>
       <Routes>
         {/* Routes cho Guest */}
@@ -23,6 +25,7 @@ function App() {
         <Route path="/admin/tenants" element={<Layout><Tenants /></Layout>} />
       </Routes>
     </Router>
+
   )
 }
 
