@@ -1,1 +1,21 @@
 /BE/HostelManagement/nbproject/
+/BE/HostelManagement/build/
+/BE/HostelManagement/dist/
+/BE/HostelManagement/build/web/
+
+# Frontend artifacts
+/FE/node_modules/
+/FE/dist/
+/FE/.vite/
+
+# IDE metadata
+/.vscode/
+/.idea/
+*.iml
+
+# OS cruft
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
