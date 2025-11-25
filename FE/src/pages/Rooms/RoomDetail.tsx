@@ -80,6 +80,10 @@ const RoomDetail = () => {
     setCurrentImageIndex(index)
   }, [])
 
+  const handleBooking = useCallback(() => {
+    alert('Tính năng đặt phòng sẽ được cập nhật sớm!')
+  }, [])
+
   if (loading) {
     return (
       <div className="loading-container">
@@ -158,6 +162,9 @@ const RoomDetail = () => {
             {/* Room Info */}
             <div className="room-info">
               <h1>{room.title}</h1>
+              <button className="book-button" onClick={handleBooking}>
+                Đặt phòng ngay
+              </button>
               
               <div className="room-price-large">
                 {formatPrice(room.price)} VNĐ
