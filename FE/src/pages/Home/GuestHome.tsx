@@ -3,6 +3,7 @@ import { useState } from 'react'
 import SearchBar from '../../components/SearchBar/SearchBar'
 import RoomCard, { Room } from '../../components/RoomCard/RoomCard'
 import './GuestHome.css'
+import { Link } from 'react-router-dom'
 
 // Mock data - cập nhật thêm description
 const mockRooms: Room[] = [
@@ -49,7 +50,7 @@ const GuestHome = () => {
         <div className="container">
           <h2>Phòng Trọ Nổi Bật</h2>
           <p className="section-subtitle">Những phòng trọ được đánh giá cao nhất</p>
-          
+
           <div className="rooms-grid">
             {featuredRooms.map(room => (
               <RoomCard
@@ -60,7 +61,9 @@ const GuestHome = () => {
           </div>
 
           <div className="view-all-container">
-            <button className="view-all-btn">Xem Tất Cả Phòng</button>
+            <Link to="/roomlist" className="view-all-btn" role="button">
+              Xem Tất Cả Phòng
+            </Link>
           </div>
         </div>
       </section>
