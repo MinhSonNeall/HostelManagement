@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
+import { useNavigate } from 'react-router-dom'
 import './RoomCard.css'
 
 export interface Room {
@@ -15,28 +16,46 @@ export interface Room {
 
 interface RoomCardProps {
   room: Room
+  showAmenities?: boolean
 }
 
-const RoomCard = ({ room }: RoomCardProps) => {
+const RoomCard = ({ room, showAmenities = false }: RoomCardProps) => {
   const [imageLoaded, setImageLoaded] = useState(true)
+  const navigate = useNavigate()
 
-  const handleImageError = () => {
+  const handleImageError = useCallback(() => {
     setImageLoaded(false)
-  }
+  }, [])
 
-  const formatPrice = (price: number) => {
+  const formatPrice = useCallback((price: number) => {
     return new Intl.NumberFormat('vi-VN').format(price)
-  }
+  }, [])
 
-  const renderStars = (rating: number) => {
+  const renderStars = useCallback((rating: number) => {
+    const fullStars = Math.floor(rating)
+    const emptyStars = 5 - fullStars
+    
     return (
       <div className="rating-stars">
-        {'★'.repeat(Math.floor(rating))}
-        {'☆'.repeat(5 - Math.floor(rating))}
+        {'★'.repeat(fullStars)}
+        {'☆'.repeat(emptyStars)}
         <span className="rating-number">({rating})</span>
       </div>
     )
-  }
+  }, [])
+
+  const handleViewDetail = useCallback(() => {
+    navigate(`/rooms/${room.id}`)
+  }, [navigate, room.id])
+
+  const handleContact = useCallback(() => {
+    alert('Tính năng liên hệ sẽ được tích hợp sau!')
+  }, [])
+
+  // Hiển thị tối đa 3 tiện nghi
+  const displayedAmenities = showAmenities 
+    ? room.amenities.slice(0, 3)
+    : []
 
   return (
     <div className="room-card">
@@ -46,9 +65,10 @@ const RoomCard = ({ room }: RoomCardProps) => {
             src={room.image} 
             alt={room.title}
             onError={handleImageError}
+            loading="lazy"
           />
         ) : (
-          <div className="image-placeholder">
+          <div className="image-placeholder" aria-label="Không thể tải ảnh">
             🏠
           </div>
         )}
@@ -65,7 +85,8 @@ const RoomCard = ({ room }: RoomCardProps) => {
         </div>
 
         <div className="room-address">
-          📍 {room.address}
+          <span aria-hidden="true">📍</span>
+          {room.address}
         </div>
 
         <div className="room-specs">
@@ -79,9 +100,37 @@ const RoomCard = ({ room }: RoomCardProps) => {
           </div>
         </div>
 
+        {showAmenities && displayedAmenities.length > 0 && (
+          <div className="room-amenities">
+            <div className="amenities-label">Tiện nghi:</div>
+            <div className="amenities-list">
+              {displayedAmenities.map((amenity, index) => (
+                <span key={index} className="amenity-tag">
+                  {amenity}
+                </span>
+              ))}
+              {room.amenities.length > 3 && (
+                <span className="amenity-tag">
+                  +{room.amenities.length - 3} khác
+                </span>
+              )}
+            </div>
+          </div>
+        )}
+
         <div className="room-actions">
-          <button className="btn-detail">Xem chi tiết</button>
-          <button className="btn-contact">Liên hệ</button>
+          <button 
+            className="btn-detail" 
+            onClick={handleViewDetail}
+          >
+            Xem chi tiết
+          </button>
+          <button 
+            className="btn-contact" 
+            onClick={handleContact}
+          >
+            Liên hệ
+          </button>
         </div>
       </div>
     </div>
