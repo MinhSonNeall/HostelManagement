@@ -1,6 +1,7 @@
-import { useState, useEffect, useMemo } from 'react'
-import { Link } from 'react-router-dom'
+import { useState, useEffect, useMemo, useCallback } from 'react'
+import { Link, useLocation } from 'react-router-dom'
 import RoomCard, { Room } from '../../components/RoomCard/RoomCard'
+import SearchBar, { SearchFilters } from '../../components/SearchBar/SearchBar'
 import './RoomList.css'
 
 // Mock data - trong thực tế sẽ fetch từ API
@@ -76,28 +77,45 @@ const mockRooms: Room[] = [
 const RoomList = () => {
     const [rooms, setRooms] = useState<Room[]>([])
     const [loading, setLoading] = useState(true)
-    const [searchTerm, setSearchTerm] = useState('')
-    const [priceRange, setPriceRange] = useState<[number, number]>([0, 5000000])
-    const [selectedDistrict, setSelectedDistrict] = useState('')
+    const location = useLocation() // Sử dụng useLocation
+
+    // Nhận filters từ navigation state nếu có
+    const initialFiltersFromNav = location.state?.filters as SearchFilters | undefined
+
+    const [filters, setFilters] = useState<SearchFilters>({
+        location: '',
+        priceRange: { min: 0, max: 10000000 },
+        area: { min: 0, max: 100 },
+        amenities: [],
+        ...initialFiltersFromNav
+    })
 
     // Filter rooms based on criteria
     const filteredRooms = useMemo(() => {
         return rooms.filter(room => {
-            const matchesSearch = room.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                room.address.toLowerCase().includes(searchTerm.toLowerCase())
-            const matchesPrice = room.price >= priceRange[0] && room.price <= priceRange[1]
-            const matchesDistrict = !selectedDistrict || room.address.includes(selectedDistrict)
+            const matchesSearch = filters.location === '' ||
+                room.title.toLowerCase().includes(filters.location.toLowerCase()) ||
+                room.address.toLowerCase().includes(filters.location.toLowerCase())
 
-            return matchesSearch && matchesPrice && matchesDistrict
+            const matchesPrice = room.price >= filters.priceRange.min &&
+                room.price <= filters.priceRange.max
+
+            const matchesArea = room.area >= filters.area.min &&
+                room.area <= filters.area.max
+
+            return matchesSearch && matchesPrice && matchesArea
         })
-    }, [rooms, searchTerm, priceRange, selectedDistrict])
+    }, [rooms, filters])
+
+    const handleSearch = useCallback((searchFilters: SearchFilters) => {
+        setFilters(searchFilters)
+    }, [])
 
     useEffect(() => {
         // Simulate API call
         const fetchRooms = async () => {
             setLoading(true)
             try {
-                // In real app, this would be an API call
                 await new Promise(resolve => setTimeout(resolve, 1000))
                 setRooms(mockRooms)
             } catch (error) {
@@ -110,14 +128,12 @@ const RoomList = () => {
         fetchRooms()
     }, [])
 
-    // Get unique districts for filter
-    const districts = useMemo(() => {
-        const allDistricts = rooms.map(room => {
-            const match = room.address.match(/Quận\s+\d+|Bình Thạnh|Thủ Đức|Gò Vấp|Tân Bình|Phú Nhuận/)
-            return match ? match[0] : 'Khác'
-        })
-        return [...new Set(allDistricts)].filter(Boolean)
-    }, [rooms])
+    // Cập nhật filters khi nhận từ navigation
+    useEffect(() => {
+        if (initialFiltersFromNav) {
+            setFilters(prev => ({ ...prev, ...initialFiltersFromNav }))
+        }
+    }, [initialFiltersFromNav])
 
     if (loading) {
         return (
@@ -144,49 +160,12 @@ const RoomList = () => {
                     <p>Tìm thấy {filteredRooms.length} phòng phù hợp</p>
                 </div>
 
-                {/* Filters */}
-                <div className="filters-section">
-                    <div className="search-filter">
-                        <input
-                            type="text"
-                            placeholder="Tìm kiếm theo tên phòng hoặc địa chỉ..."
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            className="search-input"
-                        />
-                    </div>
-
-                    <div className="filter-grid">
-                        <div className="filter-group">
-                            <label>Khoảng giá:</label>
-                            <select
-                                value={priceRange[1]}
-                                onChange={(e) => setPriceRange([0, parseInt(e.target.value)])}
-                                className="filter-select"
-                            >
-                                <option value={2000000}>Dưới 2 triệu</option>
-                                <option value={3000000}>Dưới 3 triệu</option>
-                                <option value={4000000}>Dưới 4 triệu</option>
-                                <option value={5000000}>Tất cả giá</option>
-                            </select>
-                        </div>
-
-                        <div className="filter-group">
-                            <label>Quận:</label>
-                            <select
-                                value={selectedDistrict}
-                                onChange={(e) => setSelectedDistrict(e.target.value)}
-                                className="filter-select"
-                            >
-                                <option value="">Tất cả quận</option>
-                                {districts.map(district => (
-                                    <option key={district} value={district}>
-                                        {district}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-                    </div>
+                {/* SearchBar */}
+                <div className="search-bar-container">
+                    <SearchBar
+                        onSearch={handleSearch}
+                        showFilters={true}
+                    />
                 </div>
 
                 {/* Rooms Grid */}
@@ -207,7 +186,7 @@ const RoomList = () => {
                     )}
                 </div>
 
-                {/* Load More (for pagination) */}
+                {/* Load More */}
                 {filteredRooms.length > 0 && (
                     <div className="load-more-section">
                         <button className="btn-load-more">

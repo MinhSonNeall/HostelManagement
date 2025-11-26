@@ -1,7 +1,5 @@
 .search-bar {
   width: 100%;
-  max-width: 800px;
-  margin: 0 auto;
 }
 
 .search-form {
@@ -9,6 +7,7 @@
   border-radius: 12px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   overflow: hidden;
+  border: 1px solid #e5e7eb;
 }
 
 .search-main {
@@ -124,67 +123,6 @@
   border-color: #2563eb;
 }
 
-.amenities-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-  gap: 12px;
-}
-
-.amenity-checkbox {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
-  font-size: 0.9rem;
-  color: #374151;
-  position: relative;
-  padding-left: 30px;
-}
-
-.amenity-checkbox input {
-  position: absolute;
-  opacity: 0;
-  cursor: pointer;
-}
-
-.checkmark {
-  position: absolute;
-  left: 0;
-  top: 0;
-  height: 20px;
-  width: 20px;
-  background: white;
-  border: 2px solid #d1d5db;
-  border-radius: 4px;
-  transition: all 0.3s;
-}
-
-.amenity-checkbox:hover input ~ .checkmark {
-  border-color: #2563eb;
-}
-
-.amenity-checkbox input:checked ~ .checkmark {
-  background: #2563eb;
-  border-color: #2563eb;
-}
-
-.checkmark:after {
-  content: "";
-  position: absolute;
-  display: none;
-  left: 6px;
-  top: 2px;
-  width: 4px;
-  height: 8px;
-  border: solid white;
-  border-width: 0 2px 2px 0;
-  transform: rotate(45deg);
-}
-
-.amenity-checkbox input:checked ~ .checkmark:after {
-  display: block;
-}
-
 .filter-actions {
   display: flex;
   justify-content: flex-end;
@@ -208,6 +146,12 @@
   color: #374151;
 }
 
+/* Specific styles for home page */
+.search-bar.home-searchbar {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .search-input-group {
@@ -222,9 +166,5 @@
   
   .filter-options {
     justify-content: center;
-  }
-  
-  .amenities-grid {
-    grid-template-columns: 1fr 1fr;
   }
 }

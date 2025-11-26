@@ -1,11 +1,12 @@
-// pages/GuestHome/GuestHome.tsx (cập nhật)
-import { useState } from 'react'
-import SearchBar from '../../components/SearchBar/SearchBar'
+// pages/GuestHome/GuestHome.tsx
+import { useState, useCallback } from 'react'
+import { useNavigate } from 'react-router-dom'
+import SearchBar, { SearchFilters } from '../../components/SearchBar/SearchBar'
 import RoomCard, { Room } from '../../components/RoomCard/RoomCard'
 import './GuestHome.css'
 import { Link } from 'react-router-dom'
 
-// Mock data - cập nhật thêm description
+// Mock data
 const mockRooms: Room[] = [
   {
     id: 1,
@@ -23,7 +24,7 @@ const mockRooms: Room[] = [
     title: 'Chung cư mini',
     price: 2500000,
     area: 20,
-    address: ', Cầu Giấy, TP.HN',
+    address: '456 Cầu Giấy, TP.HN',
     image: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=400',
     amenities: ['Wifi', 'Bảo vệ', 'Thang máy', 'Máy giặt'],
     rating: 4.2,
@@ -33,6 +34,15 @@ const mockRooms: Room[] = [
 
 const GuestHome = () => {
   const [featuredRooms] = useState<Room[]>(mockRooms)
+  const navigate = useNavigate()
+
+  const handleSearch = useCallback((filters: SearchFilters) => {
+    // Chuyển hướng đến RoomList với filters
+    navigate('/roomlist', { 
+      state: { filters },
+      replace: true 
+    })
+  }, [navigate])
 
   return (
     <div className="guest-home">
@@ -41,7 +51,10 @@ const GuestHome = () => {
         <div className="hero-content">
           <h1>Tìm Ngôi Nhà Phù Hợp Với Bạn</h1>
           <p>Khám phá hàng ngàn phòng trọ, chung cư với giá tốt nhất</p>
-          <SearchBar />
+          <SearchBar 
+            onSearch={handleSearch}
+            className="home-searchbar"
+          />
         </div>
       </section>
 

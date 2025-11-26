@@ -1,8 +1,7 @@
-// components/SearchBar/SearchBar.tsx
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import './SearchBar.css'
 
-interface SearchFilters {
+export interface SearchFilters {
   location: string
   priceRange: {
     min: number
@@ -15,14 +14,35 @@ interface SearchFilters {
   amenities: string[]
 }
 
-const SearchBar = () => {
-  const [isExpanded, setIsExpanded] = useState(false)
+interface SearchBarProps {
+  onSearch: (filters: SearchFilters) => void
+  initialFilters?: Partial<SearchFilters>
+  showFilters?: boolean
+  className?: string
+}
+
+const SearchBar = ({ 
+  onSearch, 
+  initialFilters,
+  showFilters = false,
+  className = '' 
+}: SearchBarProps) => {
+  const [isExpanded, setIsExpanded] = useState(showFilters)
   const [filters, setFilters] = useState<SearchFilters>({
     location: '',
     priceRange: { min: 0, max: 10000000 },
     area: { min: 0, max: 100 },
     amenities: []
   })
+
+  // Áp dụng initialFilters khi component mount
+  useEffect(() => {
+    if (initialFilters) {
+      const updatedFilters = { ...filters, ...initialFilters }
+      setFilters(updatedFilters)
+      // Không gọi onSearch ở đây để tránh loop
+    }
+  }, []) // Chỉ chạy một lần khi mount
 
   const priceOptions = [
     { label: 'Tất cả', value: { min: 0, max: 10000000 } },
@@ -42,11 +62,31 @@ const SearchBar = () => {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
-    console.log('Search filters:', filters)
+    onSearch(filters)
+  }
+
+  const handleFilterChange = (newFilters: Partial<SearchFilters>) => {
+    const updatedFilters = { ...filters, ...newFilters }
+    setFilters(updatedFilters)
+    // Auto-search khi filters thay đổi (trừ location)
+    if (Object.keys(newFilters)[0] !== 'location') {
+      onSearch(updatedFilters)
+    }
+  }
+
+  const resetFilters = () => {
+    const resetFilters = {
+      location: '',
+      priceRange: { min: 0, max: 10000000 },
+      area: { min: 0, max: 100 },
+      amenities: []
+    }
+    setFilters(resetFilters)
+    onSearch(resetFilters)
   }
 
   return (
-    <div className="search-bar">
+    <div className={`search-bar ${className}`}>
       <form onSubmit={handleSearch} className="search-form">
         <div className="search-main">
           <div className="search-input-group">
@@ -66,7 +106,7 @@ const SearchBar = () => {
               className="filter-toggle"
               onClick={() => setIsExpanded(!isExpanded)}
             >
-              🎛️ Bộ lọc
+              🎛️ Bộ lọc {isExpanded ? '▲' : '▼'}
             </button>
             
             <button type="submit" className="search-button">
@@ -88,10 +128,7 @@ const SearchBar = () => {
                       filters.priceRange.min === option.value.min && 
                       filters.priceRange.max === option.value.max ? 'active' : ''
                     }`}
-                    onClick={() => setFilters(prev => ({ 
-                      ...prev, 
-                      priceRange: option.value 
-                    }))}
+                    onClick={() => handleFilterChange({ priceRange: option.value })}
                   >
                     {option.label}
                   </button>
@@ -110,10 +147,7 @@ const SearchBar = () => {
                       filters.area.min === option.value.min && 
                       filters.area.max === option.value.max ? 'active' : ''
                     }`}
-                    onClick={() => setFilters(prev => ({ 
-                      ...prev, 
-                      area: option.value 
-                    }))}
+                    onClick={() => handleFilterChange({ area: option.value })}
                   >
                     {option.label}
                   </button>
@@ -121,17 +155,11 @@ const SearchBar = () => {
               </div>
             </div>
 
-
             <div className="filter-actions">
               <button 
                 type="button" 
                 className="btn-reset"
-                onClick={() => setFilters({
-                  location: '',
-                  priceRange: { min: 0, max: 10000000 },
-                  area: { min: 0, max: 100 },
-                  amenities: []
-                })}
+                onClick={resetFilters}
               >
                 🔄 Đặt lại
               </button>
