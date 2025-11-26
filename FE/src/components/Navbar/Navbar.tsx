@@ -84,12 +84,15 @@ const Navbar = () => {
         </Link>
         <ul className="navbar-menu">
           <li>
-            <Link to="/" className={`navbar-link ${isActive('/')}`}>
+            <Link to="/owner/dashboard" className={`navbar-link ${isActive('/owner/dashboard')}`}>
               Trang Chủ
             </Link>
           </li>
           <li>
-            <Link to="/rooms" className={`navbar-link ${isActive('/rooms')}`}>
+            <Link 
+              to={user?.role === UserRole.HOSTEL_OWNER ? "/owner/rooms" : "/rooms"} 
+              className={`navbar-link ${isActive(user?.role === UserRole.HOSTEL_OWNER ? '/owner/rooms' : '/rooms')}`}
+            >
               Phòng Trọ
             </Link>
           </li>

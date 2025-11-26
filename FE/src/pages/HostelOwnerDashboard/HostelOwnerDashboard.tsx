@@ -169,7 +169,7 @@ const HostelOwnerDashboard = () => {
         <div className="actions-grid">
           <button
             className="action-btn"
-            onClick={() => navigate('/rooms')}
+            onClick={() => navigate('/owner/rooms')}
           >
             <span className="action-icon">🏠</span>
             <span>Quản lý phòng</span>
@@ -190,7 +190,7 @@ const HostelOwnerDashboard = () => {
           <h2>Danh sách phòng</h2>
           <button
             className="view-all-btn"
-            onClick={() => navigate('/rooms')}
+            onClick={() => navigate('/owner/rooms')}
           >
             Xem tất cả →
           </button>
