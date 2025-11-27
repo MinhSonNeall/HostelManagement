@@ -1,84 +1,44 @@
 package model;
 
-/**
- * User model class
- */
+import java.sql.Timestamp;
+
 public class User {
     private String id;
-    private String username;
-    private String email;
-    private String role;
     private String fullName;
+    private String email;
+    private String phoneNumber;
+    private String password;
+    private String role;
     private Double balance;
-    private String password; // For internal use only, not returned in responses
+    private Timestamp createdAt;
+    private Timestamp updatedAt;
 
-    public User() {
-    }
+    public User() {}
 
-    public User(String id, String username, String email, String role, String fullName, Double balance) {
+    public User(String id, String fullName, String email, String role, Double balance) {
         this.id = id;
-        this.username = username;
+        this.fullName = fullName;
         this.email = email;
         this.role = role;
-        this.fullName = fullName;
         this.balance = balance;
     }
 
-    // Getters and Setters
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getRole() {
-        return role;
-    }
-
-    public void setRole(String role) {
-        this.role = role;
-    }
-
-    public String getFullName() {
-        return fullName;
-    }
-
-    public void setFullName(String fullName) {
-        this.fullName = fullName;
-    }
-
-    public Double getBalance() {
-        return balance;
-    }
-
-    public void setBalance(Double balance) {
-        this.balance = balance;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
+    public String getFullName() { return fullName; }
+    public void setFullName(String fullName) { this.fullName = fullName; }
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
+    public String getPhoneNumber() { return phoneNumber; }
+    public void setPhoneNumber(String phoneNumber) { this.phoneNumber = phoneNumber; }
+    public String getPassword() { return password; }
+    public void setPassword(String password) { this.password = password; }
+    public String getRole() { return role; }
+    public void setRole(String role) { this.role = role; }
+    public Double getBalance() { return balance; }
+    public void setBalance(Double balance) { this.balance = balance; }
+    public Timestamp getCreatedAt() { return createdAt; }
+    public void setCreatedAt(Timestamp createdAt) { this.createdAt = createdAt; }
+    public Timestamp getUpdatedAt() { return updatedAt; }
+    public void setUpdatedAt(Timestamp updatedAt) { this.updatedAt = updatedAt; }
 }
-
