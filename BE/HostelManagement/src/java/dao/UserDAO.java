@@ -24,6 +24,23 @@ public class UserDAO {
         return null;
     }
     
+    public User findByEmailOrPhone(String emailOrPhone) {
+        String sql = "SELECT * FROM Users WHERE Email = ? OR PhoneNumber = ?";
+        try (Connection conn = DBContext.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, emailOrPhone);
+            stmt.setString(2, emailOrPhone);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return mapResultSetToUser(rs);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+    
     public User findById(int id) {
         String sql = "SELECT * FROM Users WHERE UserId = ?";
         try (Connection conn = DBContext.getConnection();
@@ -99,6 +116,19 @@ public class UserDAO {
         try (Connection conn = DBContext.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, id);
+            return stmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+    
+    public boolean updatePassword(int userId, String passwordHash) {
+        String sql = "UPDATE Users SET PasswordHash = ?, UpdatedAt = SYSDATETIME() WHERE UserId = ?";
+        try (Connection conn = DBContext.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, passwordHash);
+            stmt.setInt(2, userId);
             return stmt.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();

@@ -19,7 +19,12 @@ public class UserService {
     }
 
     public User create(User user) {
-        return userDAO.create(user);
+        int id = userDAO.create(user);
+        if (id > 0) {
+            user.setId(String.valueOf(id));
+            return user;
+        }
+        return null;
     }
 
     public boolean update(User user) {

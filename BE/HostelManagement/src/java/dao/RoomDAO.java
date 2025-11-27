@@ -149,6 +149,19 @@ public class RoomDAO {
         return false;
     }
     
+    public boolean updateStatus(int roomId, String status) {
+        String sql = "UPDATE Rooms SET RoomStatus = ?, UpdatedAt = SYSDATETIME() WHERE RoomId = ?";
+        try (Connection conn = DBContext.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, status);
+            stmt.setInt(2, roomId);
+            return stmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+    
     private Room mapResultSetToRoom(ResultSet rs) throws SQLException {
         Room room = new Room();
         room.setRoomId(rs.getInt("RoomId"));

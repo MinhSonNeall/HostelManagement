@@ -106,6 +106,19 @@ public class PaymentDAO {
         return false;
     }
     
+    public boolean updateStatus(int paymentId, String status) {
+        String sql = "UPDATE Payments SET Status = ? WHERE PaymentId = ?";
+        try (Connection conn = DBContext.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, status);
+            stmt.setInt(2, paymentId);
+            return stmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+    
     private Payment mapResultSetToPayment(ResultSet rs) throws SQLException {
         Payment payment = new Payment();
         payment.setPaymentId(rs.getInt("PaymentId"));

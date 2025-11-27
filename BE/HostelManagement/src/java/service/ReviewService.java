@@ -28,7 +28,12 @@ public class ReviewService {
     }
 
     public Review create(Review review) {
-        return reviewDAO.create(review);
+        int id = reviewDAO.create(review);
+        if (id > 0) {
+            review.setReviewId(id);
+            return review;
+        }
+        return null;
     }
 
     public boolean update(Review review) {

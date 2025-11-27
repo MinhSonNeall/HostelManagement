@@ -83,7 +83,7 @@ public class LoginServlet extends HttpServlet {
             // Create user object for response (without password)
             Map<String, Object> userMap = new HashMap<>();
             userMap.put("id", user.getId());
-            userMap.put("username", user.getUsername());
+            userMap.put("username", user.getEmail());
             userMap.put("email", user.getEmail());
             userMap.put("role", user.getRole());
             userMap.put("fullName", user.getFullName());

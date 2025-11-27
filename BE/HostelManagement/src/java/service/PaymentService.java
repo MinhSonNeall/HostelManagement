@@ -24,10 +24,15 @@ public class PaymentService {
     }
 
     public Payment create(Payment payment) {
-        return paymentDAO.create(payment);
+        int id = paymentDAO.create(payment);
+        if (id > 0) {
+            payment.setPaymentId(id);
+            return payment;
+        }
+        return null;
     }
 
-    public boolean updateStatus(Integer paymentId, String status) {
+    public boolean updateStatus(int paymentId, String status) {
         return paymentDAO.updateStatus(paymentId, status);
     }
 }

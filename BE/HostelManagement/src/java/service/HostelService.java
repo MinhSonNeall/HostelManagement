@@ -24,7 +24,12 @@ public class HostelService {
     }
 
     public Hostel create(Hostel hostel) {
-        return hostelDAO.create(hostel);
+        int id = hostelDAO.create(hostel);
+        if (id > 0) {
+            hostel.setHostelId(id);
+            return hostel;
+        }
+        return null;
     }
 
     public boolean update(Hostel hostel) {

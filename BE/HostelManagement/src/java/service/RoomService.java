@@ -32,14 +32,19 @@ public class RoomService {
     }
 
     public Room create(Room room) {
-        return roomDAO.create(room);
+        int id = roomDAO.create(room);
+        if (id > 0) {
+            room.setRoomId(id);
+            return room;
+        }
+        return null;
     }
 
     public boolean update(Room room) {
         return roomDAO.update(room);
     }
 
-    public boolean updateStatus(Integer roomId, String status) {
+    public boolean updateStatus(int roomId, String status) {
         return roomDAO.updateStatus(roomId, status);
     }
 
