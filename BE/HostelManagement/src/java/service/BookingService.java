@@ -32,7 +32,12 @@ public class BookingService {
     }
 
     public Booking create(Booking booking) {
-        return bookingDAO.create(booking);
+        int id = bookingDAO.create(booking);
+        if (id > 0) {
+            booking.setBookingId(id);
+            return booking;
+        }
+        return null;
     }
 
     public boolean update(Booking booking) {
