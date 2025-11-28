@@ -1,16 +1,16 @@
 import { useState, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import './RoomCard.css'
+import type { Room as ApiRoom } from '../../types'
 
-export interface Room {
-  id: number
-  title: string
-  price: number
-  area: number
-  address: string
-  image: string
-  amenities: string[]
-  rating: number
+// UI-friendly room type: extend API room with optional UI fields for backward compatibility
+export type Room = ApiRoom & {
+  // optional UI fields that may exist in a different API/schema
+  title?: string
+  address?: string
+  image?: string
+  amenities?: string[]
+  rating?: number
   description?: string
 }
 
@@ -31,10 +31,14 @@ const RoomCard = ({ room, showAmenities = false }: RoomCardProps) => {
     return new Intl.NumberFormat('vi-VN').format(price)
   }, [])
 
-  const renderStars = useCallback((rating: number) => {
-    const fullStars = Math.floor(rating)
+  const renderStars = useCallback((rating?: number) => {
+    if (rating === undefined || rating === null) {
+      return <div className="rating-stars">Chưa có đánh giá</div>
+    }
+
+    const fullStars = Math.floor(Math.max(0, Math.min(5, rating)))
     const emptyStars = 5 - fullStars
-    
+
     return (
       <div className="rating-stars">
         {'★'.repeat(fullStars)}
@@ -52,18 +56,18 @@ const RoomCard = ({ room, showAmenities = false }: RoomCardProps) => {
     alert('Tính năng liên hệ sẽ được tích hợp sau!')
   }, [])
 
-  // Hiển thị tối đa 3 tiện nghi
-  const displayedAmenities = showAmenities 
+  // Hiển thị tối đa 3 tiện nghi (an toàn khi amenities có thể undefined)
+  const displayedAmenities = showAmenities && Array.isArray(room.amenities)
     ? room.amenities.slice(0, 3)
     : []
 
   return (
     <div className="room-card">
       <div className="room-image">
-        {imageLoaded ? (
+        {imageLoaded && room.image ? (
           <img 
-            src={room.image} 
-            alt={room.title}
+            src={room.image}
+            alt={room.title ?? room.roomNumber ?? 'Phòng'}
             onError={handleImageError}
             loading="lazy"
           />
@@ -77,7 +81,7 @@ const RoomCard = ({ room, showAmenities = false }: RoomCardProps) => {
 
       <div className="room-content">
         <div className="room-header">
-          <h3 className="room-title">{room.title}</h3>
+          <h3 className="room-title">{room.title ?? room.roomNumber ?? 'Phòng'}</h3>
           <div className="room-price">
             {formatPrice(room.price)} VNĐ
             <span className="price-unit">/tháng</span>
@@ -86,7 +90,7 @@ const RoomCard = ({ room, showAmenities = false }: RoomCardProps) => {
 
         <div className="room-address">
           <span aria-hidden="true">📍</span>
-          {room.address}
+          {room.address ?? ''}
         </div>
 
         <div className="room-specs">
@@ -109,7 +113,7 @@ const RoomCard = ({ room, showAmenities = false }: RoomCardProps) => {
                   {amenity}
                 </span>
               ))}
-              {room.amenities.length > 3 && (
+              {Array.isArray(room.amenities) && room.amenities.length > 3 && (
                 <span className="amenity-tag">
                   +{room.amenities.length - 3} khác
                 </span>

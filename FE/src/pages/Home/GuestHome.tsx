@@ -2,39 +2,38 @@
 import { useState, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import SearchBar, { SearchFilters } from '../../components/SearchBar/SearchBar'
-import RoomCard, { Room } from '../../components/RoomCard/RoomCard'
+import RoomCard, { Room as UiRoom } from '../../components/RoomCard/RoomCard'
 import './GuestHome.css'
 import { Link } from 'react-router-dom'
-
-// Mock data
-const mockRooms: Room[] = [
-  {
-    id: 1,
-    title: 'Phòng trọ cao cấp',
-    price: 3000000,
-    area: 25,
-    address: '123 Kim Mã, Ba Đình, TP.HN',
-    image: 'https://images.unsplash.com/photo-1555854877-bab0e564b8d5?w=400',
-    amenities: ['Wifi', 'Máy lạnh', 'Chỗ để xe', 'Bảo vệ'],
-    rating: 4.5,
-    description: 'Phòng trọ mới xây, view thành phố, gần trung tâm'
-  },
-  {
-    id: 2,
-    title: 'Chung cư mini',
-    price: 2500000,
-    area: 20,
-    address: '456 Cầu Giấy, TP.HN',
-    image: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=400',
-    amenities: ['Wifi', 'Bảo vệ', 'Thang máy', 'Máy giặt'],
-    rating: 4.2,
-    description: 'Chung cư mini mới, an ninh tốt, tiện nghi đầy đủ'
-  },
-]
+import { roomApi } from '../../api/rooms'
+import { useEffect } from 'react'
 
 const GuestHome = () => {
-  const [featuredRooms] = useState<Room[]>(mockRooms)
+  const [featuredRooms, setFeaturedRooms] = useState<UiRoom[]>([])
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const navigate = useNavigate()
+
+  useEffect(() => {
+    setLoading(true)
+    roomApi.getAll()
+      .then((apiRooms) => {
+        // Map API rooms to UI-friendly rooms (provide safe defaults)
+        const mapped: UiRoom[] = apiRooms.map((r: any) => ({
+          ...r,
+          title: r.title ?? (r.roomNumber ? `Phòng ${r.roomNumber}` : r.description ?? ''),
+          address: r.address ?? '',
+          image: r.image ?? '',
+          amenities: r.amenities ?? [],
+          rating: r.rating ?? 0,
+        }))
+        setFeaturedRooms(mapped)
+      })
+      .catch((err) => {
+        setError(err?.message ?? 'Lỗi khi tải phòng')
+      })
+      .finally(() => setLoading(false))
+  }, [])
 
   const handleSearch = useCallback((filters: SearchFilters) => {
     // Chuyển hướng đến RoomList với filters
@@ -65,7 +64,12 @@ const GuestHome = () => {
           <p className="section-subtitle">Những phòng trọ được đánh giá cao nhất</p>
 
           <div className="rooms-grid">
-            {featuredRooms.map(room => (
+            {loading && <div>Đang tải phòng...</div>}
+            {error && <div className="error">{error}</div>}
+            {!loading && !error && featuredRooms.length === 0 && (
+              <div className="no-results">Không có phòng nào</div>
+            )}
+            {!loading && !error && featuredRooms.map(room => (
               <RoomCard
                 key={room.id}
                 room={room}
