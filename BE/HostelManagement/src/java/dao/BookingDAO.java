@@ -1,6 +1,6 @@
 package dao;
 
-import config.DBContext;
+import util.DBContext;
 import model.Booking;
 import java.sql.*;
 import java.util.ArrayList;

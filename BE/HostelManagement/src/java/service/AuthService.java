@@ -1,59 +1,131 @@
 package service;
 
+import dao.UserDAO;
 import model.User;
 
-/**
- * Authentication Service - Business logic for authentication
- */
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+
 public class AuthService {
-    
-    /**
-     * Authenticate user with username and password
-     * @param username
-     * @param password
-     * @return User if authentication successful, null otherwise
-     */
+
+    private final UserDAO userDAO = new UserDAO();
+    // khóa bí mật để ký token – anh đổi chuỗi này thành chuỗi khác mạnh hơn
+    private static final String SECRET = "change-this-secret-key";
+
     public User authenticate(String username, String password) {
-        // TODO: Call UserDAO to find user and verify password
-        // UserDAO userDAO = new UserDAO();
-        // User user = userDAO.findByUsername(username);
-        // if (user != null && verifyPassword(password, user.getPassword())) {
-        //     return user;
-        // }
-        // return null;
-        
-        // Placeholder - implement actual authentication logic
-        return null;
+        if (username == null || password == null) {
+            return null;
+        }
+
+        User user = userDAO.findByEmailOrPhone(username);
+        if (user == null) {
+            return null;
+        }
+
+        if (!verifyPassword(password, user.getPassword())) {
+            return null;
+        }
+
+        return user;
     }
-    
-    /**
-     * Verify password (should compare hashed passwords)
-     * @param inputPassword
-     * @param storedPasswordHash
-     * @return true if password matches
-     */
+
     private boolean verifyPassword(String inputPassword, String storedPasswordHash) {
-        // TODO: Use BCrypt or similar library to verify hashed password
-        // return BCrypt.checkpw(inputPassword, storedPasswordHash);
-        return false;
+        if (storedPasswordHash == null) {
+            return false;
+        }
+
+        String hashedInput = hashPassword(inputPassword);
+        return storedPasswordHash.equals(hashedInput);
     }
-    
-    /**
-     * Generate JWT token for user
-     * @param user
-     * @return JWT token string
-     */
+
+    public String hashPassword(String password) {
+        try {
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            byte[] digest = md.digest(password.getBytes(StandardCharsets.UTF_8));
+            return Base64.getEncoder().encodeToString(digest);
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException("Không hỗ trợ SHA-256", e);
+        }
+    }
+
     public String generateToken(User user) {
-        // TODO: Use JWT library to generate token
-        // JWT.create()
-        //     .withSubject(user.getId())
-        //     .withClaim("username", user.getUsername())
-        //     .withClaim("role", user.getRole())
-        //     .withExpiresAt(new Date(System.currentTimeMillis() + 86400000)) // 24 hours
-        //     .sign(Algorithm.HMAC256(secret));
-        
-        // Placeholder
-        return "jwt-token-" + user.getId() + "-" + System.currentTimeMillis();
+        long now = System.currentTimeMillis();
+        long exp = now + 24L * 60 * 60 * 1000; // 24h
+
+        String payload = user.getId() + "|" + user.getRole() + "|" + exp;
+        String signature = hmacSha256(payload, SECRET);
+
+        String payloadPart = Base64.getUrlEncoder()
+                .withoutPadding()
+                .encodeToString(payload.getBytes(StandardCharsets.UTF_8));
+        String signPart = Base64.getUrlEncoder()
+                .withoutPadding()
+                .encodeToString(signature.getBytes(StandardCharsets.UTF_8));
+
+        return payloadPart + "." + signPart;
+    }
+
+    public boolean validateToken(String token) {
+        if (token == null || !token.contains(".")) {
+            return false;
+        }
+        String[] parts = token.split("\\.");
+        if (parts.length != 2) {
+            return false;
+        }
+
+        String payload = new String(Base64.getUrlDecoder()
+                .decode(parts[0]), StandardCharsets.UTF_8);
+        String signFromToken = new String(Base64.getUrlDecoder()
+                .decode(parts[1]), StandardCharsets.UTF_8);
+
+        String expectedSign = hmacSha256(payload, SECRET);
+        if (!expectedSign.equals(signFromToken)) {
+            return false;
+        }
+
+        String[] payloadParts = payload.split("\\|");
+        if (payloadParts.length != 3) {
+            return false;
+        }
+
+        long exp;
+        try {
+            exp = Long.parseLong(payloadParts[2]);
+        } catch (NumberFormatException e) {
+            return false;
+        }
+
+        return exp >= System.currentTimeMillis();
+    }
+
+    public String getUserIdFromToken(String token) {
+        if (token == null || !token.contains(".")) return null;
+        String[] parts = token.split("\\.");
+        try {
+            String payload = new String(Base64.getUrlDecoder()
+                    .decode(parts[0]), StandardCharsets.UTF_8);
+            String[] payloadParts = payload.split("\\|");
+            return payloadParts[0];
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    private String hmacSha256(String data, String secret) {
+        try {
+            Mac mac = Mac.getInstance("HmacSHA256");
+            SecretKeySpec keySpec =
+                    new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
+            mac.init(keySpec);
+            byte[] result = mac.doFinal(data.getBytes(StandardCharsets.UTF_8));
+            return Base64.getEncoder().encodeToString(result);
+        } catch (Exception e) {
+            throw new RuntimeException("Lỗi HMAC-SHA256", e);
+        }
     }
 }
-
