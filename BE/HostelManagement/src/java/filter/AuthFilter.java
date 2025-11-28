@@ -24,7 +24,8 @@ public class AuthFilter implements Filter {
 
         HttpServletRequest req = (HttpServletRequest) request;
         HttpServletResponse res = (HttpServletResponse) response;
-
+        
+        //Allow login requests to pass without a token
         String path = req.getRequestURI();
         if (path.endsWith("/api/auth/login")) {
             chain.doFilter(request, response);
@@ -43,7 +44,8 @@ public class AuthFilter implements Filter {
             res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
-
+        
+        //Can set userId in request attribute if needed
         String userId = authService.getUserIdFromToken(token);
         req.setAttribute("userId", userId);
 

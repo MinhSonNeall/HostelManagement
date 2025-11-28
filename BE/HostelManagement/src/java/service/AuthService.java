@@ -13,7 +13,6 @@ import javax.crypto.spec.SecretKeySpec;
 public class AuthService {
 
     private final UserDAO userDAO = new UserDAO();
-    // khóa bí mật để ký token – anh đổi chuỗi này thành chuỗi khác mạnh hơn
     private static final String SECRET = "change-this-secret-key";
 
     public User authenticate(String username, String password) {
