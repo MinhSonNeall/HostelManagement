@@ -27,7 +27,7 @@ public class AuthFilter implements Filter {
         
         //Allow login requests to pass without a token
         String path = req.getRequestURI();
-        if (path.endsWith("/api/auth/login")) {
+        if (path.endsWith("/api/auth/login")|| path.endsWith("/api/auth/register")){
             chain.doFilter(request, response);
             return;
         }
