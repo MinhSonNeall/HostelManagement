@@ -54,6 +54,15 @@
       "price": 1900000,
       "status": "MAINTENANCE",
       "description": "Đang sửa chữa"
+    },
+    {
+      "roomNumber": "203",
+      "floor": 1,
+      "area": 20,
+      "price": 2000000,
+      "status": "AVAILABLE",
+      "description": "Siêu to khổng lồ",
+      "id": "WPVh2hg"
     }
   ],
   "tenants": [

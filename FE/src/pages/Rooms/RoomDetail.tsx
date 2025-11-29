@@ -2,31 +2,7 @@ import { useState, useEffect, useMemo, useCallback } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { Room } from '../../components/RoomCard/RoomCard'
 import './RoomDetail.css'
-
-const mockRoomDetail: Room[] = [
-  {
-    id: 1,
-    title: 'Phòng trọ cao cấp',
-    price: 3000000,
-    area: 25,
-    address: '123 Kim Mã, Ba Đình, TP.HN',
-    image: 'https://images.unsplash.com/photo-1555854877-bab0e564b8d5?w=800',
-    amenities: ['Wifi', 'Máy lạnh', 'Chỗ để xe', 'Bảo vệ', 'Camera', 'Tủ lạnh'],
-    rating: 4.5,
-    description: 'Phòng trọ mới xây, view thành phố, gần trung tâm. Phòng được trang bị đầy đủ tiện nghi, nội thất cao cấp, an ninh tốt. Vị trí thuận tiện di chuyển đến các quận trung tâm, gần chợ, siêu thị, trường học.'
-  },
-  {
-    id: 2,
-    title: 'Chung cư mini',
-    price: 2500000,
-    area: 20,
-    address: 'Cầu Giấy, TP.HN',
-    image: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800',
-    amenities: ['Wifi', 'Bảo vệ', 'Thang máy', 'Máy giặt', 'Pinh', 'Gác lửng'],
-    rating: 4.2,
-    description: 'Chung cư mini mới, an ninh tốt, tiện nghi đầy đủ. Khu vực yên tĩnh, phù hợp cho sinh viên và người đi làm. Có chỗ để xe rộng rãi, gần công viên, khu vui chơi.'
-  }
-]
+import { roomApi } from '../../api/rooms'
 
 const RoomDetail = () => {
   const { id } = useParams<{ id: string }>()
@@ -43,16 +19,21 @@ const RoomDetail = () => {
   ], [room?.image])
 
   useEffect(() => {
-    const fetchRoomDetail = () => {
-      setLoading(true)
-      setTimeout(() => {
-        const foundRoom = mockRoomDetail.find(room => room.id === parseInt(id || '0'))
-        setRoom(foundRoom || null)
-        setLoading(false)
-      }, 500)
-    }
-
-    fetchRoomDetail()
+    if (!id) return
+    setLoading(true)
+    roomApi.getById(id)
+      .then((apiRoom: any) => {
+        const mapped: Room = {
+          ...apiRoom,
+          title: apiRoom.title ?? (apiRoom.roomNumber ? `Phòng ${apiRoom.roomNumber}` : apiRoom.description ?? ''),
+          image: apiRoom.image ?? '',
+          amenities: apiRoom.amenities ?? [],
+          rating: apiRoom.rating ?? 0,
+        }
+        setRoom(mapped)
+      })
+      .catch(() => setRoom(null))
+      .finally(() => setLoading(false))
   }, [id])
 
   // Optimized functions với useCallback
@@ -60,9 +41,7 @@ const RoomDetail = () => {
     return new Intl.NumberFormat('vi-VN').format(price)
   }, [])
 
-  const handleContact = useCallback(() => {
-    alert('Tính năng liên hệ sẽ được tích hợp sau!')
-  }, [])
+  // contact action will be implemented later
 
   const handleNextImage = useCallback(() => {
     setCurrentImageIndex((prev) => 
@@ -78,10 +57,6 @@ const RoomDetail = () => {
 
   const handleThumbnailClick = useCallback((index: number) => {
     setCurrentImageIndex(index)
-  }, [])
-
-  const handleBooking = useCallback(() => {
-    alert('Tính năng đặt phòng sẽ được cập nhật sớm!')
   }, [])
 
   if (loading) {
@@ -162,9 +137,6 @@ const RoomDetail = () => {
             {/* Room Info */}
             <div className="room-info">
               <h1>{room.title}</h1>
-              <button className="book-button" onClick={handleBooking}>
-                Đặt phòng ngay
-              </button>
               
               <div className="room-price-large">
                 {formatPrice(room.price)} VNĐ
@@ -196,13 +168,17 @@ const RoomDetail = () => {
               <div className="amenities-section">
                 <h3>Tiện nghi</h3>
                 <div className="amenities-grid">
-                  {room.amenities.map((amenity, index) => (
-                    <div key={index} className="amenity-item">
-                      <span className="amenity-icon" aria-hidden="true">✓</span>
-                      {amenity}
-                    </div>
-                  ))}
-                </div>
+                    {Array.isArray(room.amenities) && room.amenities.length > 0 ? (
+                      room.amenities.map((amenity, index) => (
+                        <div key={index} className="amenity-item">
+                          <span className="amenity-icon" aria-hidden="true">✓</span>
+                          {amenity}
+                        </div>
+                      ))
+                    ) : (
+                      <div className="no-amenities">Chưa có tiện nghi</div>
+                    )}
+                  </div>
               </div>
             </div>
           </div>

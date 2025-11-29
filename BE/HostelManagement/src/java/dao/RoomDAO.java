@@ -1,6 +1,6 @@
 package dao;
 
-import config.DBContext;
+import util.DBContext;
 import model.Room;
 import java.sql.*;
 import java.util.ArrayList;

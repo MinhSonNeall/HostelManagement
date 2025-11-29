@@ -14,13 +14,6 @@ import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Login Servlet Controller
- * Endpoint: /api/auth/login
- * Method: POST
- * Request Body: { "username": "string", "password": "string" }
- * Response: { "token": "string", "user": { "id": "string", "username": "string", ... } }
- */
 @WebServlet("/api/auth/login")
 public class LoginServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
@@ -36,11 +29,9 @@ public class LoginServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         
-        // Set response content type to JSON
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
         
-        // Enable CORS (if needed for frontend)
         response.setHeader("Access-Control-Allow-Origin", "*");
         response.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
         response.setHeader("Access-Control-Allow-Headers", "Content-Type");
@@ -48,7 +39,6 @@ public class LoginServlet extends HttpServlet {
         PrintWriter out = response.getWriter();
 
         try {
-            // Parse JSON request body
             JsonObject jsonRequest = JSONHelper.parseJSONRequest(request);
             
             String username = jsonRequest.get("username").getAsString();
@@ -65,7 +55,6 @@ public class LoginServlet extends HttpServlet {
                 return;
             }
 
-            // Authenticate user using AuthService
             User user = authService.authenticate(username, password);
             
             if (user == null) {
@@ -77,10 +66,8 @@ public class LoginServlet extends HttpServlet {
                 return;
             }
 
-            // Generate token
             String token = authService.generateToken(user);
 
-            // Create user object for response (without password)
             Map<String, Object> userMap = new HashMap<>();
             userMap.put("id", user.getId());
             userMap.put("username", user.getEmail());
@@ -89,7 +76,6 @@ public class LoginServlet extends HttpServlet {
             userMap.put("fullName", user.getFullName());
             userMap.put("balance", user.getBalance());
 
-            // Create login response matching frontend format: { token, user }
             Map<String, Object> loginResponse = new HashMap<>();
             loginResponse.put("token", token);
             loginResponse.put("user", userMap);
