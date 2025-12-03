@@ -79,7 +79,12 @@ const Navbar = () => {
   return (
     <nav className="navbar">
       <div className="navbar-container">
-        <Link to="/" className="navbar-brand">
+        <Link 
+          to={user?.role === UserRole.ADMIN ? "/admin/dashboard" : 
+              (user?.role === UserRole.HOSTELOWNER || user?.role === UserRole.HOSTEL_OWNER) ? "/owner/dashboard" : 
+              "/"} 
+          className="navbar-brand"
+        >
           Quản Lý Trọ
         </Link>
         <ul className="navbar-menu">
@@ -107,26 +112,59 @@ const Navbar = () => {
               </li>
             </>
           ) : (
-            <>
-              <li>
-                <Link to="/owner/dashboard" className={`navbar-link ${isActive('/owner/dashboard')}`}>
-                  Trang Chủ
-                </Link>
-              </li>
-              <li>
-                <Link 
-                  to={user?.role === UserRole.HOSTEL_OWNER ? "/owner/rooms" : "/rooms"} 
-                  className={`navbar-link ${isActive(user?.role === UserRole.HOSTEL_OWNER ? '/owner/rooms' : '/rooms')}`}
-                >
-                  Phòng Trọ
-                </Link>
-              </li>
-              <li>
-                <Link to="/tenants" className={`navbar-link ${isActive('/tenants')}`}>
-                  Khách Thuê
-                </Link>
-              </li>
-            </>
+            // Hiển thị menu cho HOSTELOWNER hoặc HOSTEL_OWNER
+              (user?.role === UserRole.HOSTELOWNER || user?.role === UserRole.HOSTEL_OWNER) ? (
+              <>
+                <li>
+                  <Link to="/owner/dashboard" className={`navbar-link ${isActive('/owner/dashboard')}`}>
+                    Trang Chủ
+                  </Link>
+                </li>
+                <li>
+                  <Link 
+                    to="/owner/hostels" 
+                    className={`navbar-link ${isActive('/owner/hostels')}`}
+                  >
+                    Dãy Trọ
+                  </Link>
+                </li>
+                <li>
+                  <Link 
+                    to="/owner/rooms" 
+                    className={`navbar-link ${isActive('/owner/rooms')}`}
+                  >
+                    Phòng Trọ
+                  </Link>
+                </li>
+                <li>
+                  <Link 
+                    to="/owner/media" 
+                    className={`navbar-link ${isActive('/owner/media')}`}
+                  >
+                    Thư viện ảnh
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/owner/tenants" className={`navbar-link ${isActive('/owner/tenants')}`}>
+                    Khách Thuê
+                  </Link>
+                </li>
+              </>
+            ) : (
+              // Menu cho GUEST hoặc các role khác
+              <>
+                <li>
+                  <Link to="/" className={`navbar-link ${isActive('/')}`}>
+                    Trang Chủ
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/rooms" className={`navbar-link ${isActive('/rooms')}`}>
+                    Phòng Trọ
+                  </Link>
+                </li>
+              </>
+            )
           )}
         </ul>
         <div className="navbar-actions">

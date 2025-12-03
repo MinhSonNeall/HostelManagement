@@ -1,0 +1,168 @@
+.hostel-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.hostel-card {
+  background: white;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.25);
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  display: flex;
+  flex-direction: column;
+}
+
+.hostel-card-media {
+  position: relative;
+  width: 100%;
+  height: 200px;
+  overflow: hidden;
+}
+
+.hostel-card-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.hostel-card:hover .hostel-card-media img {
+  transform: scale(1.08);
+}
+
+.hostel-card-badges {
+  position: absolute;
+  bottom: 16px;
+  left: 16px;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.hostel-card-badges span {
+  background: rgba(17, 24, 39, 0.85);
+  color: white;
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  backdrop-filter: blur(6px);
+}
+
+.hostel-card-body {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.hostel-card-title {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.hostel-card-title h2 {
+  margin: 0;
+  font-size: 1.35rem;
+  color: #111827;
+}
+
+.hostel-id {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #6b7280;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+}
+
+.hostel-location-chip {
+  background: #eef2ff;
+  color: #4338ca;
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+.hostel-card-address {
+  margin: 0;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.hostel-card-description {
+  margin: 0;
+  color: #4b5563;
+  line-height: 1.5;
+}
+
+.hostel-card-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  padding: 1rem;
+  background: #f8fafc;
+  border-radius: 16px;
+}
+
+.hostel-card-stats div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.stat-label {
+  font-size: 0.8rem;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.hostel-card-stats strong {
+  font-size: 1.25rem;
+  color: #111827;
+}
+
+.hostel-card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.btn-ghost {
+  background: transparent;
+  border-color: rgba(37, 99, 235, 0.2);
+}
+
+.btn-ghost:hover {
+  border-color: #2563eb;
+  color: #1d4ed8;
+}
+
+.btn-danger {
+  border-color: rgba(239, 68, 68, 0.4);
+  color: #b91c1c;
+}
+
+.btn-danger:hover {
+  border-color: #ef4444;
+  color: #dc2626;
+  background: #fef2f2;
+}
+
+@media (max-width: 768px) {
+  .hostel-card-stats {
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  }
+
+  .hostel-card-title {
+    flex-direction: column;
+  }
+
+  .hostel-location-chip {
+    align-self: flex-start;
+  }
+}
+

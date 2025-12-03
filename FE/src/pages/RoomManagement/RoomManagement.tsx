@@ -2,19 +2,29 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { roomApi } from '../../api/rooms'
 import { useNotification } from '../../contexts/NotificationContext'
-import type { Room, RoomStatus } from '../../types'
+import { useAuth } from '../../contexts/AuthContext'
+import { hostelApi } from '../../api/hostels'
+import type { Room, RoomStatus, Hostel } from '../../types'
 import './RoomManagement.css'
 
 const RoomManagement = () => {
   const navigate = useNavigate()
   const { showNotification } = useNotification()
+  const { user } = useAuth()
+  const ownerId = Number(user?.id)
   const [rooms, setRooms] = useState<Room[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [hostels, setHostels] = useState<Hostel[]>([])
+  const [hostelLoading, setHostelLoading] = useState(true)
 
   useEffect(() => {
-    loadRooms()
-  }, [])
+    if (ownerId) {
+      loadHostels()
+    } else {
+      setHostelLoading(false)
+    }
+  }, [ownerId])
 
   const loadRooms = async () => {
     try {
@@ -27,6 +37,27 @@ const RoomManagement = () => {
       showNotification('Không thể tải danh sách phòng. Vui lòng thử lại sau.', 'error')
     } finally {
       setLoading(false)
+    }
+  }
+
+  const loadHostels = async () => {
+    try {
+      setHostelLoading(true)
+      const data = await hostelApi.getByOwner(ownerId)
+      setHostels(data)
+      if (data.length > 0) {
+        await loadRooms()
+      } else {
+        setRooms([])
+        setLoading(false)
+      }
+    } catch (err) {
+      showNotification('Không thể tải danh sách dãy trọ. Vui lòng thử lại sau.', 'error')
+      setHostels([])
+      setRooms([])
+      setLoading(false)
+    } finally {
+      setHostelLoading(false)
     }
   }
 
@@ -76,12 +107,12 @@ const RoomManagement = () => {
     return new Intl.NumberFormat('vi-VN').format(price)
   }
 
-  if (loading) {
+  if (loading || hostelLoading) {
     return (
       <div className="room-management">
         <div className="loading-container">
           <div className="loading-spinner"></div>
-          <p>Đang tải danh sách phòng...</p>
+          <p>Đang tải dữ liệu...</p>
         </div>
       </div>
     )
@@ -91,12 +122,27 @@ const RoomManagement = () => {
     <div className="room-management">
       <div className="room-management-header">
         <h1>Quản Lý Phòng Trọ</h1>
-        <button 
-          className="btn-create"
-          onClick={() => navigate('/owner/rooms/create')}
-        >
-          + Thêm Phòng Mới
-        </button>
+        <div className="header-actions">
+          <button 
+            className="btn-outline"
+            onClick={() => navigate('/owner/hostels')}
+          >
+            Xem Dãy Trọ
+          </button>
+          <button 
+            className="btn-secondary"
+            onClick={() => navigate('/owner/hostels/create')}
+          >
+            + Tạo Dãy Trọ
+          </button>
+          <button 
+            className="btn-create"
+            onClick={() => navigate('/owner/rooms/create')}
+            disabled={!hostels.length}
+          >
+            + Thêm Phòng Mới
+          </button>
+        </div>
       </div>
 
       {error && (
@@ -106,7 +152,20 @@ const RoomManagement = () => {
         </div>
       )}
 
-      {rooms.length === 0 && !error ? (
+      {!hostels.length && !error ? (
+        <div className="empty-state">
+          <h3>Bạn chưa có dãy trọ nào</h3>
+          <p>Tạo dãy trọ trước, sau đó bạn có thể thêm phòng cho từng dãy.</p>
+          <div className="empty-actions">
+            <button 
+              className="btn-create"
+              onClick={() => navigate('/owner/hostels/create')}
+            >
+              + Tạo Dãy Trọ
+            </button>
+          </div>
+        </div>
+      ) : rooms.length === 0 && !error ? (
         <div className="empty-state">
           <p>Chưa có phòng nào. Hãy thêm phòng mới!</p>
           <button 

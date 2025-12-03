@@ -31,6 +31,7 @@ export interface AdminHostel {
   district?: string
   city?: string
   description?: string
+  backgroundImg?: string
   totalFloors: number
   totalRooms: number
   createdAt?: string

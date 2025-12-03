@@ -16,7 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@WebServlet("/api/hostels")
+@WebServlet("/api/hostels/*")
 public class HostelServlet extends HttpServlet {
 
     private static final long serialVersionUID = 1L;
@@ -102,6 +102,9 @@ public class HostelServlet extends HttpServlet {
             hostel.setDistrict(json.has("district") ? json.get("district").getAsString() : null);
             hostel.setCity(json.has("city") ? json.get("city").getAsString() : null);
             hostel.setDescription(json.has("description") ? json.get("description").getAsString() : null);
+            hostel.setBackgroundImg(json.has("backgroundImg") && !json.get("backgroundImg").isJsonNull()
+                    ? json.get("backgroundImg").getAsString()
+                    : null);
             hostel.setTotalFloors(json.has("totalFloors") ? json.get("totalFloors").getAsInt() : 1);
             hostel.setTotalRooms(json.has("totalRooms") ? json.get("totalRooms").getAsInt() : 0);
 
@@ -130,11 +133,150 @@ public class HostelServlet extends HttpServlet {
     }
 
     @Override
+    protected void doPut(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        response.setHeader("Access-Control-Allow-Origin", "*");
+        response.setHeader("Access-Control-Allow-Methods", "PUT, OPTIONS");
+        response.setHeader("Access-Control-Allow-Headers", "Content-Type");
+
+        PrintWriter out = response.getWriter();
+
+        try {
+            String pathInfo = request.getPathInfo();
+            if (pathInfo == null || pathInfo.length() <= 1) {
+                sendBadRequest(response, out, "Thiếu id dãy trọ");
+                return;
+            }
+
+            int hostelId = Integer.parseInt(pathInfo.substring(1));
+            Hostel existing = hostelService.findById(hostelId);
+            if (existing == null) {
+                sendNotFound(response, out, "Không tìm thấy dãy trọ");
+                return;
+            }
+
+            JsonObject json = JSONHelper.parseJSONRequest(request);
+            Hostel updated = buildHostelFromJson(json, existing);
+            updated.setHostelId(hostelId);
+
+            boolean success = hostelService.update(updated);
+            if (!success) {
+                sendBadRequest(response, out, "Không thể cập nhật dãy trọ");
+                return;
+            }
+
+            response.setStatus(HttpServletResponse.SC_OK);
+            out.print(JSONHelper.toJSON(updated));
+            out.flush();
+
+        } catch (Exception e) {
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            Map<String, Object> error = new HashMap<>();
+            error.put("message", "Lỗi server: " + e.getMessage());
+            out.print(JSONHelper.toJSON(error));
+            out.flush();
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    protected void doDelete(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        response.setHeader("Access-Control-Allow-Origin", "*");
+        response.setHeader("Access-Control-Allow-Methods", "DELETE, OPTIONS");
+        response.setHeader("Access-Control-Allow-Headers", "Content-Type");
+
+        PrintWriter out = response.getWriter();
+
+        try {
+            String pathInfo = request.getPathInfo();
+            if (pathInfo == null || pathInfo.length() <= 1) {
+                sendBadRequest(response, out, "Thiếu id dãy trọ");
+                return;
+            }
+
+            int hostelId = Integer.parseInt(pathInfo.substring(1));
+            boolean ok = hostelService.delete(hostelId);
+            if (!ok) {
+                sendBadRequest(response, out, "Không thể xóa dãy trọ");
+                return;
+            }
+
+            response.setStatus(HttpServletResponse.SC_NO_CONTENT);
+
+        } catch (Exception e) {
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            Map<String, Object> error = new HashMap<>();
+            error.put("message", "Lỗi server: " + e.getMessage());
+            out.print(JSONHelper.toJSON(error));
+            out.flush();
+            e.printStackTrace();
+        }
+    }
+
+    @Override
     protected void doOptions(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setHeader("Access-Control-Allow-Origin", "*");
-        response.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+        response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
         response.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
         response.setStatus(HttpServletResponse.SC_OK);
+    }
+
+    private Hostel buildHostelFromJson(JsonObject json, Hostel base) {
+        Hostel hostel = base != null ? base : new Hostel();
+        if (json.has("ownerId")) {
+            hostel.setOwnerId(json.get("ownerId").getAsInt());
+        }
+        if (json.has("hostelName")) {
+            hostel.setHostelName(json.get("hostelName").getAsString());
+        }
+        if (json.has("address")) {
+            hostel.setAddress(json.get("address").getAsString());
+        }
+        if (json.has("ward")) {
+            hostel.setWard(json.get("ward").isJsonNull() ? null : json.get("ward").getAsString());
+        }
+        if (json.has("district")) {
+            hostel.setDistrict(json.get("district").isJsonNull() ? null : json.get("district").getAsString());
+        }
+        if (json.has("city")) {
+            hostel.setCity(json.get("city").isJsonNull() ? null : json.get("city").getAsString());
+        }
+        if (json.has("description")) {
+            hostel.setDescription(json.get("description").isJsonNull() ? null : json.get("description").getAsString());
+        }
+        if (json.has("backgroundImg")) {
+            hostel.setBackgroundImg(json.get("backgroundImg").isJsonNull() ? null : json.get("backgroundImg").getAsString());
+        }
+        if (json.has("totalFloors")) {
+            hostel.setTotalFloors(json.get("totalFloors").getAsInt());
+        }
+        if (json.has("totalRooms")) {
+            hostel.setTotalRooms(json.get("totalRooms").getAsInt());
+        }
+        return hostel;
+    }
+
+    private void sendBadRequest(HttpServletResponse response, PrintWriter out, String message) {
+        response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+        Map<String, Object> error = new HashMap<>();
+        error.put("message", message);
+        out.print(JSONHelper.toJSON(error));
+        out.flush();
+    }
+
+    private void sendNotFound(HttpServletResponse response, PrintWriter out, String message) {
+        response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+        Map<String, Object> error = new HashMap<>();
+        error.put("message", message);
+        out.print(JSONHelper.toJSON(error));
+        out.flush();
     }
 }

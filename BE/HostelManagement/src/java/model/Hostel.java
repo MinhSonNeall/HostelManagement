@@ -11,6 +11,7 @@ public class Hostel {
     private String district;
     private String city;
     private String description;
+    private String backgroundImg;
     private int totalFloors;
     private int totalRooms;
     private Timestamp createdAt;
@@ -34,6 +35,8 @@ public class Hostel {
     public void setCity(String city) { this.city = city; }
     public String getDescription() { return description; }
     public void setDescription(String description) { this.description = description; }
+    public String getBackgroundImg() { return backgroundImg; }
+    public void setBackgroundImg(String backgroundImg) { this.backgroundImg = backgroundImg; }
     public int getTotalFloors() { return totalFloors; }
     public void setTotalFloors(int totalFloors) { this.totalFloors = totalFloors; }
     public int getTotalRooms() { return totalRooms; }

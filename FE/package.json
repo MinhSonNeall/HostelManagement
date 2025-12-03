@@ -11,6 +11,8 @@
     "server": "json-server --watch db.json --port 3000"
   },
   "dependencies": {
+    "@cloudinary/react": "^1.14.3",
+    "@cloudinary/url-gen": "^1.22.0",
     "axios": "^1.13.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

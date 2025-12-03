@@ -95,3 +95,19 @@ export interface User {
   isActive?: boolean
 }
 
+export interface Hostel {
+  hostelId: number
+  ownerId: number
+  hostelName: string
+  address: string
+  ward?: string
+  district?: string
+  city?: string
+  description?: string
+  backgroundImg?: string
+  totalFloors: number
+  totalRooms: number
+  createdAt?: string
+  updatedAt?: string
+}
+

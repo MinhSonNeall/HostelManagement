@@ -1,11 +1,13 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { authApi } from '../../api/auth'
+import { useAuth } from '../../contexts/AuthContext'
 import { UserRole } from '../../types'
 import './Register.css'
 
 const Register = () => {
   const navigate = useNavigate()
+  const { setUser } = useAuth()
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
@@ -147,9 +149,16 @@ const Register = () => {
 
       const response = await authApi.register(registerData)
 
+      // Cập nhật AuthContext với user mới đăng ký
+      // authApi.register() đã tự động login và lưu vào localStorage rồi,
+      // chỉ cần cập nhật state trong AuthContext
+      setUser(response.user)
+
       // Redirect dựa trên role trả về từ backend (GUEST / HOSTELOWNER / ADMIN)
-      if (response.user.role === UserRole.HOSTELOWNER) {
+      if (response.user.role === UserRole.HOSTELOWNER || response.user.role === UserRole.HOSTEL_OWNER) {
         navigate('/owner/dashboard')
+      } else if (response.user.role === UserRole.ADMIN) {
+        navigate('/admin/dashboard')
       } else {
         // GUEST hoặc các role khác về trang chủ
         navigate('/')

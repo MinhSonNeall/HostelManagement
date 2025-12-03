@@ -7,6 +7,7 @@ interface AuthContextType {
   loading: boolean
   login: (credentials: LoginCredentials) => Promise<User>
   logout: () => Promise<void>
+  setUser: (user: User) => void // Helper để set user trực tiếp (dùng sau khi register)
   isAuthenticated: boolean
 }
 
@@ -55,11 +56,18 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     localStorage.removeItem('user')
   }
 
+  // Helper function để set user trực tiếp (dùng sau khi register)
+  const setUserDirectly = (userData: User) => {
+    setUser(userData)
+    localStorage.setItem('user', JSON.stringify(userData))
+  }
+
   const value = {
     user,
     loading,
     login,
     logout,
+    setUser: setUserDirectly,
     isAuthenticated: !!user,
   }
 

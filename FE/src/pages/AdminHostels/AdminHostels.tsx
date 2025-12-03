@@ -75,6 +75,7 @@ const AdminHostels = () => {
               <th>ID</th>
               <th>Tên nhà trọ</th>
               <th>Chủ sở hữu ID</th>
+              <th>Ảnh nền</th>
               <th>Địa chỉ</th>
               <th>Phường/Xã</th>
               <th>Quận/Huyện</th>
@@ -91,6 +92,17 @@ const AdminHostels = () => {
                 <td>{hostel.hostelId}</td>
                 <td className="hostel-name">{hostel.hostelName}</td>
                 <td>{hostel.ownerId}</td>
+                <td>
+                  {hostel.backgroundImg ? (
+                    <img
+                      src={hostel.backgroundImg}
+                      alt={hostel.hostelName}
+                      className="hostel-thumb"
+                    />
+                  ) : (
+                    <span className="no-image">-</span>
+                  )}
+                </td>
                 <td className="address-cell">{hostel.address}</td>
                 <td>{hostel.ward || '-'}</td>
                 <td>{hostel.district || '-'}</td>

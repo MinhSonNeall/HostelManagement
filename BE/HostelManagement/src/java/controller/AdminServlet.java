@@ -262,14 +262,14 @@ public class AdminServlet extends HttpServlet {
                 return;
             }
 
-            JsonObject jsonRequest = JSONHelper.parseJSONRequest(request);
-
             if (path != null && path.startsWith("/users/")) {
                 String userIdStr = path.substring("/users/".length());
-                try {
-                    int userId = Integer.parseInt(userIdStr);
-                    
-                    if (path.endsWith("/activate")) {
+                
+                // Handle activate/deactivate endpoints first (these don't need request body)
+                if (path.endsWith("/activate")) {
+                    userIdStr = userIdStr.substring(0, userIdStr.length() - "/activate".length());
+                    try {
+                        int userId = Integer.parseInt(userIdStr);
                         boolean success = adminService.activateUser(userId);
                         if (success) {
                             response.setStatus(HttpServletResponse.SC_OK);
@@ -284,9 +284,20 @@ public class AdminServlet extends HttpServlet {
                         }
                         out.flush();
                         return;
+                    } catch (NumberFormatException e) {
+                        response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                        Map<String, Object> error = new HashMap<>();
+                        error.put("message", "ID người dùng không hợp lệ");
+                        out.print(JSONHelper.toJSON(error));
+                        out.flush();
+                        return;
                     }
+                }
 
-                    if (path.endsWith("/deactivate")) {
+                if (path.endsWith("/deactivate")) {
+                    userIdStr = userIdStr.substring(0, userIdStr.length() - "/deactivate".length());
+                    try {
+                        int userId = Integer.parseInt(userIdStr);
                         boolean success = adminService.deactivateUser(userId);
                         if (success) {
                             response.setStatus(HttpServletResponse.SC_OK);
@@ -301,7 +312,20 @@ public class AdminServlet extends HttpServlet {
                         }
                         out.flush();
                         return;
+                    } catch (NumberFormatException e) {
+                        response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                        Map<String, Object> error = new HashMap<>();
+                        error.put("message", "ID người dùng không hợp lệ");
+                        out.print(JSONHelper.toJSON(error));
+                        out.flush();
+                        return;
                     }
+                }
+                
+                // Handle regular user update (needs request body)
+                try {
+                    JsonObject jsonRequest = JSONHelper.parseJSONRequest(request);
+                    int userId = Integer.parseInt(userIdStr);
 
                     // Update user info
                     User user = adminService.getUserById(userId);

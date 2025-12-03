@@ -1,0 +1,152 @@
+.profile-page {
+  display: flex;
+  justify-content: center;
+  padding: 2rem 0;
+}
+
+.profile-card {
+  width: 100%;
+  max-width: 900px;
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.15);
+  padding: 2.5rem 2.5rem 2rem;
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.profile-header {
+  display: flex;
+  gap: 1.5rem;
+  align-items: center;
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 1.5rem;
+}
+
+.profile-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 2.5rem;
+  font-weight: 700;
+  box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+}
+
+.profile-main-info h1 {
+  margin: 0;
+  font-size: 1.8rem;
+  color: #111827;
+}
+
+.profile-role {
+  margin: 0.25rem 0 0;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.profile-section h2 {
+  margin: 0 0 1rem;
+  font-size: 1.25rem;
+  color: #111827;
+}
+
+.profile-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.25rem;
+}
+
+.profile-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.profile-item .label {
+  font-size: 0.9rem;
+  color: #6b7280;
+}
+
+.profile-item .value {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.status-pill {
+  display: inline-block;
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.status-pill.active {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.status-pill.inactive {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.profile-wallet {
+  background: linear-gradient(135deg, #eff6ff 0%, #e0f2fe 100%);
+  border-radius: 16px;
+  padding: 1.25rem 1.5rem;
+  border: 1px solid #bfdbfe;
+}
+
+.wallet-amount {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.wallet-label {
+  font-size: 0.95rem;
+  color: #1e3a8a;
+  font-weight: 600;
+}
+
+.wallet-value {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #1d4ed8;
+}
+
+.wallet-note {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #4b5563;
+}
+
+.profile-note {
+  margin: 0;
+  color: #4b5563;
+  line-height: 1.6;
+  font-size: 0.95rem;
+}
+
+@media (max-width: 768px) {
+  .profile-card {
+    padding: 1.75rem 1.5rem 1.5rem;
+  }
+
+  .profile-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+

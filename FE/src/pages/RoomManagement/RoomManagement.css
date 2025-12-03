@@ -17,6 +17,12 @@
   margin: 0;
 }
 
+.header-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
 .btn-create {
   background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
   color: white;
@@ -37,6 +43,47 @@
 
 .btn-create:active {
   transform: translateY(0);
+}
+
+.btn-create:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+
+.btn-outline {
+  border: 2px solid #e5e7eb;
+  background: white;
+  color: #1f2937;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-outline:hover {
+  border-color: #2563eb;
+  color: #2563eb;
+}
+
+.btn-secondary {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
+}
+
+.btn-secondary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(16, 185, 129, 0.3);
 }
 
 /* Loading */
@@ -99,10 +146,23 @@
   border: 2px dashed #d1d5db;
 }
 
+.empty-state h3 {
+  font-size: 1.5rem;
+  margin-bottom: 12px;
+  color: #111827;
+}
+
 .empty-state p {
   font-size: 1.1rem;
   color: #6b7280;
   margin-bottom: 24px;
+}
+
+.empty-actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 
 /* Table */
@@ -290,7 +350,7 @@
 
 .form-row {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 24px;
 }
 
@@ -328,6 +388,170 @@
 .form-group textarea {
   resize: vertical;
   min-height: 100px;
+}
+
+.helper-text {
+  display: block;
+  margin-top: 8px;
+  font-size: 0.9rem;
+  color: #6b7280;
+}
+
+.input-hint {
+  margin-top: 4px;
+  font-size: 0.85rem;
+  color: #6b7280;
+}
+
+.room-image-preview {
+  margin-top: 12px;
+  width: 100%;
+  max-height: 220px;
+  object-fit: cover;
+  border-radius: 12px;
+  border: 2px dashed #d1d5db;
+  background: #f9fafb;
+}
+
+.room-image-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0.75rem;
+  border-top: 1px solid #e5e7eb;
+  background: #fff;
+}
+
+.room-image-card-footer label {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.85rem;
+  color: #374151;
+}
+
+.room-image-card-footer input[type='radio'] {
+  width: 1rem;
+  height: 1rem;
+}
+
+.room-image-chip {
+  border: none;
+  background: #f3f4f6;
+  color: #374151;
+  border-radius: 999px;
+  padding: 0.25rem 0.85rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.room-image-chip:hover {
+  background: #e5e7eb;
+}
+
+.room-image-preview-card.marked-for-delete img {
+  opacity: 0.35;
+  filter: grayscale(1);
+}
+
+.room-image-delete-flag {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  background: rgba(239, 68, 68, 0.9);
+  color: white;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+}
+
+.room-image-upload input[type="file"] {
+  width: 100%;
+  padding: 0.75rem;
+  border: 2px dashed #cbd5f5;
+  border-radius: 12px;
+  background: #f8fafc;
+  cursor: pointer;
+}
+
+.room-image-upload p {
+  margin-top: 8px;
+  font-size: 0.85rem;
+  color: #6b7280;
+}
+
+.room-image-preview-grid {
+  margin-top: 1rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 16px;
+}
+
+.room-image-preview-card {
+  position: relative;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 10px 15px -10px rgba(15, 23, 42, 0.4);
+}
+
+.room-image-preview-card img {
+  width: 100%;
+  height: 140px;
+  object-fit: cover;
+}
+
+.room-image-remove {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  background: rgba(0, 0, 0, 0.6);
+  color: #fff;
+  border: none;
+  border-radius: 999px;
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.room-image-primary {
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  background: rgba(59, 130, 246, 0.9);
+  color: white;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+}
+
+.datalist-input {
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+.form-group datalist {
+  max-width: 100%;
+}
+
+.link-button {
+  background: none;
+  border: none;
+  color: #2563eb;
+  cursor: pointer;
+  font-weight: 600;
+  padding: 0;
+  font-size: 0.9rem;
+}
+
+.link-button:hover {
+  text-decoration: underline;
 }
 
 .form-actions {

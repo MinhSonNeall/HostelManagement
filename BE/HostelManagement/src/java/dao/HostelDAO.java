@@ -57,7 +57,7 @@ public class HostelDAO {
     }
     
     public int create(Hostel hostel) {
-        String sql = "INSERT INTO Hostels (OwnerId, HostelName, Address, Ward, District, City, Description, TotalFloors, TotalRooms) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO Hostels (OwnerId, HostelName, Address, Ward, District, City, Description, BackgroundImg, TotalFloors, TotalRooms) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = DBContext.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             stmt.setInt(1, hostel.getOwnerId());
@@ -67,8 +67,9 @@ public class HostelDAO {
             stmt.setString(5, hostel.getDistrict());
             stmt.setString(6, hostel.getCity());
             stmt.setString(7, hostel.getDescription());
-            stmt.setInt(8, hostel.getTotalFloors());
-            stmt.setInt(9, hostel.getTotalRooms());
+            stmt.setString(8, hostel.getBackgroundImg());
+            stmt.setInt(9, hostel.getTotalFloors());
+            stmt.setInt(10, hostel.getTotalRooms());
             stmt.executeUpdate();
             try (ResultSet rs = stmt.getGeneratedKeys()) {
                 if (rs.next()) {
@@ -82,7 +83,7 @@ public class HostelDAO {
     }
     
     public boolean update(Hostel hostel) {
-        String sql = "UPDATE Hostels SET HostelName = ?, Address = ?, Ward = ?, District = ?, City = ?, Description = ?, TotalFloors = ?, TotalRooms = ?, UpdatedAt = SYSDATETIME() WHERE HostelId = ?";
+        String sql = "UPDATE Hostels SET HostelName = ?, Address = ?, Ward = ?, District = ?, City = ?, Description = ?, BackgroundImg = ?, TotalFloors = ?, TotalRooms = ?, UpdatedAt = SYSDATETIME() WHERE HostelId = ?";
         try (Connection conn = DBContext.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, hostel.getHostelName());
@@ -91,9 +92,10 @@ public class HostelDAO {
             stmt.setString(4, hostel.getDistrict());
             stmt.setString(5, hostel.getCity());
             stmt.setString(6, hostel.getDescription());
-            stmt.setInt(7, hostel.getTotalFloors());
-            stmt.setInt(8, hostel.getTotalRooms());
-            stmt.setInt(9, hostel.getHostelId());
+            stmt.setString(7, hostel.getBackgroundImg());
+            stmt.setInt(8, hostel.getTotalFloors());
+            stmt.setInt(9, hostel.getTotalRooms());
+            stmt.setInt(10, hostel.getHostelId());
             return stmt.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -123,6 +125,7 @@ public class HostelDAO {
         hostel.setDistrict(rs.getString("District"));
         hostel.setCity(rs.getString("City"));
         hostel.setDescription(rs.getString("Description"));
+        hostel.setBackgroundImg(rs.getString("BackgroundImg"));
         hostel.setTotalFloors(rs.getInt("TotalFloors"));
         hostel.setTotalRooms(rs.getInt("TotalRooms"));
         hostel.setCreatedAt(rs.getTimestamp("CreatedAt"));
