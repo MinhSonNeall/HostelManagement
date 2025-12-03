@@ -1,14 +1,19 @@
 package service;
 
 import dao.RoomDAO;
+import dao.RoomPictureDAO;
 import model.Room;
+import model.RoomPicture;
+
 import java.util.List;
 
 public class RoomService {
     private RoomDAO roomDAO;
+    private RoomPictureDAO roomPictureDAO;
 
     public RoomService() {
         this.roomDAO = new RoomDAO();
+        this.roomPictureDAO = new RoomPictureDAO();
     }
 
     public List<Room> findAll() {
@@ -50,6 +55,16 @@ public class RoomService {
 
     public boolean delete(Integer roomId) {
         return roomDAO.delete(roomId);
+    }
+
+    public void attachPictures(Room room) {
+        if (room == null || room.getRoomId() == 0) {
+            return;
+        }
+        List<RoomPicture> pictures = roomPictureDAO.findByRoomId(room.getRoomId());
+        room.setPictures(pictures);
+        RoomPicture primary = roomPictureDAO.findPrimaryByRoomId(room.getRoomId());
+        room.setPrimaryPicture(primary);
     }
 }
 

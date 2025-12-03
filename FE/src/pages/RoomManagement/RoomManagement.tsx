@@ -49,6 +49,7 @@ const RoomManagement = () => {
       case 'AVAILABLE':
         return 'Còn trống'
       case 'OCCUPIED':
+      case 'RENTED':
         return 'Đã thuê'
       case 'MAINTENANCE':
         return 'Bảo trì'
@@ -62,6 +63,7 @@ const RoomManagement = () => {
       case 'AVAILABLE':
         return 'status-available'
       case 'OCCUPIED':
+      case 'RENTED':
         return 'status-occupied'
       case 'MAINTENANCE':
         return 'status-maintenance'

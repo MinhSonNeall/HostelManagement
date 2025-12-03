@@ -1,6 +1,8 @@
 package model;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Room {
     private int roomId;
@@ -24,6 +26,8 @@ public class Room {
     private String description;
     private Timestamp createdAt;
     private Timestamp updatedAt;
+    private List<RoomPicture> pictures = new ArrayList<>();
+    private RoomPicture primaryPicture;
 
     public Room() {}
 
@@ -69,4 +73,26 @@ public class Room {
     public void setCreatedAt(Timestamp createdAt) { this.createdAt = createdAt; }
     public Timestamp getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(Timestamp updatedAt) { this.updatedAt = updatedAt; }
+
+    public List<RoomPicture> getPictures() {
+        return pictures;
+    }
+
+    public void setPictures(List<RoomPicture> pictures) {
+        this.pictures = pictures;
+    }
+
+    public RoomPicture getPrimaryPicture() {
+        if (primaryPicture != null) {
+            return primaryPicture;
+        }
+        return pictures.stream()
+                .filter(RoomPicture::isPrimary)
+                .findFirst()
+                .orElse(null);
+    }
+
+    public void setPrimaryPicture(RoomPicture primaryPicture) {
+        this.primaryPicture = primaryPicture;
+    }
 }

@@ -7,13 +7,13 @@ import './Register.css'
 const Register = () => {
   const navigate = useNavigate()
   const [formData, setFormData] = useState({
-    username: '',
+    fullName: '',
+    email: '',
+    phoneNumber: '',
     password: '',
     confirmPassword: '',
-    email: '',
-    fullName: '',
-    phoneNumber: '',
-    role: UserRole.CUSTOMER as UserRole,
+    // Role trong DB: GUEST hoặc HOSTELOWNER, mặc định GUEST
+    role: UserRole.GUEST as UserRole,
   })
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [error, setError] = useState('')
@@ -21,9 +21,9 @@ const Register = () => {
 
   const validateField = (name: string, value: string): string => {
     switch (name) {
-      case 'username':
-        if (value.length < 6) {
-          return 'Tên đăng nhập phải có ít nhất 6 ký tự'
+      case 'fullName':
+        if (!value.trim()) {
+          return 'Họ và tên không được để trống'
         }
         return ''
       case 'password':
@@ -40,7 +40,10 @@ const Register = () => {
         }
         return ''
       case 'email':
-        if (value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+        if (!value.trim()) {
+          return 'Email không được để trống'
+        }
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
           return 'Email không đúng định dạng'
         }
         return ''
@@ -71,15 +74,14 @@ const Register = () => {
 
   // Kiểm tra form có hợp lệ không
   const isFormValid = (): boolean => {
-    // Kiểm tra các field bắt buộc
-    if (formData.username.length < 6) return false
+    // Kiểm tra các field bắt buộc (phù hợp với backend: fullName, email, password)
+    if (!formData.fullName.trim()) return false
+    if (!formData.email.trim()) return false
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) return false
     if (formData.password.length < 6) return false
     if (!/[A-Z]/.test(formData.password)) return false
     if (formData.confirmPassword.length === 0) return false
     if (formData.password !== formData.confirmPassword) return false
-
-    // Kiểm tra email nếu có nhập
-    if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) return false
 
     // Kiểm tra số điện thoại nếu có nhập
     if (formData.phoneNumber && !/^[0-9]{10}$/.test(formData.phoneNumber)) return false
@@ -93,10 +95,17 @@ const Register = () => {
 
     // Validate tất cả các trường
     const newErrors: Record<string, string> = {}
-    
-    // Validate username
-    if (formData.username.length < 6) {
-      newErrors.username = 'Tên đăng nhập phải có ít nhất 6 ký tự'
+
+    // Validate fullName
+    if (!formData.fullName.trim()) {
+      newErrors.fullName = 'Họ và tên không được để trống'
+    }
+
+    // Validate email
+    if (!formData.email.trim()) {
+      newErrors.email = 'Email không được để trống'
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      newErrors.email = 'Email không đúng định dạng'
     }
 
     // Validate password
@@ -109,11 +118,6 @@ const Register = () => {
     // Validate confirm password
     if (formData.password !== formData.confirmPassword) {
       newErrors.confirmPassword = 'Mật khẩu xác nhận không khớp'
-    }
-
-    // Validate email
-    if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = 'Email không đúng định dạng'
     }
 
     // Validate phone number
@@ -132,13 +136,22 @@ const Register = () => {
     setLoading(true)
 
     try {
-      const { confirmPassword, ...registerData } = formData
+      const { confirmPassword, ...rest } = formData
+
+      // Backend không có trường username, nhưng interface RegisterData yêu cầu.
+      // Dùng email làm username cho phù hợp với DB (Users: FullName, Email, PhoneNumber, PasswordHash, Role,...)
+      const registerData = {
+        ...rest,
+        username: formData.email,
+      }
+
       const response = await authApi.register(registerData)
 
-      // Redirect dựa trên role
-      if (response.user.role === UserRole.HOSTEL_OWNER) {
+      // Redirect dựa trên role trả về từ backend (GUEST / HOSTELOWNER / ADMIN)
+      if (response.user.role === UserRole.HOSTELOWNER) {
         navigate('/owner/dashboard')
-      } else if (response.user.role === UserRole.CUSTOMER) {
+      } else {
+        // GUEST hoặc các role khác về trang chủ
         navigate('/')
       }
     } catch (err: any) {
@@ -165,13 +178,13 @@ const Register = () => {
               required
               className="role-select"
             >
-              <option value={UserRole.CUSTOMER}>Người dùng</option>
-              <option value={UserRole.HOSTEL_OWNER}>Chủ trọ</option>
+              <option value={UserRole.GUEST}>Người thuê trọ</option>
+              <option value={UserRole.HOSTELOWNER}>Chủ trọ</option>
             </select>
           </div>
 
           <div className="form-group">
-            <label htmlFor="fullName">Họ và tên</label>
+            <label htmlFor="fullName">Họ và tên *</label>
             <input
               type="text"
               id="fullName"
@@ -179,33 +192,21 @@ const Register = () => {
               placeholder="Nhập họ và tên"
               value={formData.fullName}
               onChange={handleChange}
-            />
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="username">Tên đăng nhập *</label>
-            <input
-              type="text"
-              id="username"
-              name="username"
-              placeholder="Nhập tên đăng nhập (tối thiểu 6 ký tự)"
-              value={formData.username}
-              onChange={handleChange}
               required
-              minLength={6}
             />
-            {errors.username && <span className="field-error">{errors.username}</span>}
+            {errors.fullName && <span className="field-error">{errors.fullName}</span>}
           </div>
 
           <div className="form-group">
-            <label htmlFor="email">Email</label>
+            <label htmlFor="email">Email *</label>
             <input
               type="email"
               id="email"
               name="email"
-              placeholder="Nhập email (tùy chọn)"
+              placeholder="Nhập email"
               value={formData.email}
               onChange={handleChange}
+              required
             />
             {errors.email && <span className="field-error">{errors.email}</span>}
           </div>

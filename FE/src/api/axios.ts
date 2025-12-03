@@ -2,7 +2,7 @@ import axios from 'axios'
 
 // Tạo instance axios với cấu hình mặc định
 const apiClient = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000',
+  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:9999/HostelManagement/api',
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',

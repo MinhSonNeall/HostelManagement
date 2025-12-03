@@ -83,24 +83,51 @@ const Navbar = () => {
           Quản Lý Trọ
         </Link>
         <ul className="navbar-menu">
-          <li>
-            <Link to="/owner/dashboard" className={`navbar-link ${isActive('/owner/dashboard')}`}>
-              Trang Chủ
-            </Link>
-          </li>
-          <li>
-            <Link 
-              to={user?.role === UserRole.HOSTEL_OWNER ? "/owner/rooms" : "/rooms"} 
-              className={`navbar-link ${isActive(user?.role === UserRole.HOSTEL_OWNER ? '/owner/rooms' : '/rooms')}`}
-            >
-              Phòng Trọ
-            </Link>
-          </li>
-          <li>
-            <Link to="/tenants" className={`navbar-link ${isActive('/tenants')}`}>
-              Khách Thuê
-            </Link>
-          </li>
+          {user?.role === UserRole.ADMIN ? (
+            <>
+              <li>
+                <Link to="/admin/dashboard" className={`navbar-link ${isActive('/admin/dashboard')}`}>
+                  Trang Chủ
+                </Link>
+              </li>
+              <li>
+                <Link to="/admin/users" className={`navbar-link ${isActive('/admin/users')}`}>
+                  Quản lý tài khoản
+                </Link>
+              </li>
+              <li>
+                <Link to="/admin/reviews" className={`navbar-link ${isActive('/admin/reviews')}`}>
+                  Quản lý đánh giá
+                </Link>
+              </li>
+              <li>
+                <Link to="/admin/hostels" className={`navbar-link ${isActive('/admin/hostels')}`}>
+                  Quản lý nhà trọ
+                </Link>
+              </li>
+            </>
+          ) : (
+            <>
+              <li>
+                <Link to="/owner/dashboard" className={`navbar-link ${isActive('/owner/dashboard')}`}>
+                  Trang Chủ
+                </Link>
+              </li>
+              <li>
+                <Link 
+                  to={user?.role === UserRole.HOSTEL_OWNER ? "/owner/rooms" : "/rooms"} 
+                  className={`navbar-link ${isActive(user?.role === UserRole.HOSTEL_OWNER ? '/owner/rooms' : '/rooms')}`}
+                >
+                  Phòng Trọ
+                </Link>
+              </li>
+              <li>
+                <Link to="/tenants" className={`navbar-link ${isActive('/tenants')}`}>
+                  Khách Thuê
+                </Link>
+              </li>
+            </>
+          )}
         </ul>
         <div className="navbar-actions">
           {isAuthenticated ? (

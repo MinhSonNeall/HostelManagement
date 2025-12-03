@@ -23,7 +23,7 @@ const GuestHome = () => {
           ...r,
           title: r.title ?? (r.roomNumber ? `Phòng ${r.roomNumber}` : r.description ?? ''),
           address: r.address ?? '',
-          image: r.image ?? '',
+          image: r.image ?? r.primaryPictureUrl ?? '',
           amenities: r.amenities ?? [],
           rating: r.rating ?? 0,
         }))

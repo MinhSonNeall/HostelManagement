@@ -36,7 +36,7 @@ export const NotificationProvider = ({ children }: NotificationProviderProps) =>
     const notification: Notification = { id, message, type }
     
     setNotifications(prev => [...prev, notification])
-    // Việc tự động xóa được xử lý trong Notification component để có animation
+    
   }
 
   const removeNotification = (id: string) => {

@@ -1,16 +1,46 @@
 // Types for Room
 export interface Room {
   id: string
+  roomId?: number
+  hostelId?: number
   roomNumber: string
   floor: number
   area: number
+  areaM2?: number
   price: number
+  pricePerMonth?: number
   status: RoomStatus
+  roomStatus?: RoomStatus
   description?: string
+  depositAmount?: number
+  maxOccupants?: number
+  electricityPricePerKwh?: number
+  waterPricePerM3?: number
+  wifiFee?: number
+  parkingFee?: number
+  hasAirConditioner?: boolean
+  hasWaterHeater?: boolean
+  hasPrivateBathroom?: boolean
+  hasKitchen?: boolean
+  allowPet?: boolean
+  pictures?: RoomPicture[]
+  primaryPictureUrl?: string
+}
+
+export interface RoomPicture {
+  pictureId: number
+  roomId: number
+  pictureUrl: string
+  pictureDescription?: string
+  isPrimary: boolean
+  displayOrder: number
+  createdAt?: string
+  updatedAt?: string
 }
 
 export enum RoomStatus {
   AVAILABLE = 'AVAILABLE',
+  RENTED = 'RENTED',
   OCCUPIED = 'OCCUPIED',
   MAINTENANCE = 'MAINTENANCE'
 }
@@ -47,6 +77,9 @@ export enum ContractStatus {
 
 // User Role
 export enum UserRole {
+  ADMIN = 'ADMIN',
+  HOSTELOWNER = 'HOSTELOWNER',
+  GUEST = 'GUEST',
   HOSTEL_OWNER = 'HOSTEL_OWNER',
   CUSTOMER = 'CUSTOMER'
 }
@@ -59,5 +92,6 @@ export interface User {
   role: UserRole
   fullName?: string
   balance?: number
+  isActive?: boolean
 }
 

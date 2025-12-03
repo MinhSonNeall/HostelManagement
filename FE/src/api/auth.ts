@@ -3,7 +3,7 @@ import type { User } from '../types'
 import { UserRole } from '../types'
 
 export interface LoginCredentials {
-  username: string
+  email: string
   password: string
 }
 
@@ -23,35 +23,25 @@ export interface RegisterData {
 
 // API functions cho Authentication
 export const authApi = {
-  // Đăng nhập - tìm user trong db.json
+  // Đăng nhập - sử dụng backend API
   login: async (credentials: LoginCredentials): Promise<LoginResponse> => {
     try {
-      // Lấy tất cả users từ json-server
-      const response = await apiClient.get('/users')
-      const users = response.data
+      const response = await apiClient.post('/auth/login', {
+        email: credentials.email,
+        password: credentials.password,
+      })
 
-      // Tìm user khớp với username và password
-      const user = users.find(
-        (u: any) => u.username === credentials.username && u.password === credentials.password
-      )
+      const { token, user: backendUser } = response.data
 
-      if (!user) {
-        const error: any = new Error('Tên đăng nhập hoặc mật khẩu không đúng')
-        error.response = { data: { message: 'Tên đăng nhập hoặc mật khẩu không đúng' } }
-        throw error
-      }
-
-      // Tạo token đơn giản (trong production nên dùng JWT từ backend)
-      const token = `fake-jwt-token-${user.id}-${Date.now()}`
-
-      // Tạo user object theo format User interface
+      // Map backend user to frontend User format
       const userData: User = {
-        id: user.id,
-        username: user.username,
-        email: user.email,
-        role: user.role as UserRole,
-        fullName: user.fullName,
-        balance: user.balance,
+        id: String(backendUser.id),
+        username: backendUser.username || backendUser.email,
+        email: backendUser.email,
+        role: backendUser.role as UserRole,
+        fullName: backendUser.fullName,
+        balance: backendUser.balance,
+        isActive: backendUser.isActive,
       }
 
       // Lưu token vào localStorage
@@ -63,10 +53,10 @@ export const authApi = {
         user: userData,
       }
     } catch (error: any) {
-      // Nếu là lỗi network hoặc không tìm thấy user
-      if (!error.response) {
-        const newError: any = new Error('Tên đăng nhập hoặc mật khẩu không đúng')
-        newError.response = { data: { message: 'Tên đăng nhập hoặc mật khẩu không đúng' } }
+      // Xử lý lỗi từ backend
+      if (error.response?.data?.message) {
+        const newError: any = new Error(error.response.data.message)
+        newError.response = error.response
         throw newError
       }
       throw error
@@ -82,56 +72,29 @@ export const authApi = {
   // Đăng ký tài khoản mới
   register: async (data: RegisterData): Promise<LoginResponse> => {
     try {
-      // Kiểm tra username đã tồn tại chưa
-      const response = await apiClient.get('/users')
-      const users = response.data
-
-      const existingUser = users.find((u: any) => u.username === data.username)
-      if (existingUser) {
-        const error: any = new Error('Tên đăng nhập đã tồn tại')
-        error.response = { data: { message: 'Tên đăng nhập đã tồn tại' } }
-        throw error
-      }
-
-      // Tạo user mới
-      const newUser = {
-        id: `user-${Date.now()}`,
-        username: data.username,
-        password: data.password,
-        email: data.email || '',
-        fullName: data.fullName || '',
+      // Gọi API đăng ký từ backend
+      const registerResponse = await apiClient.post('/auth/register', {
+        fullName: data.fullName || data.username,
+        email: data.email || data.username,
         phoneNumber: data.phoneNumber || '',
-        role: data.role,
-        balance: data.role === UserRole.CUSTOMER ? 0 : undefined,
-      }
+        password: data.password,
+        role: data.role || 'GUEST',
+      })
 
-      // Thêm user vào db.json
-      await apiClient.post('/users', newUser)
+      const backendUser = registerResponse.data
 
-      // Tạo token và đăng nhập tự động
-      const token = `fake-jwt-token-${newUser.id}-${Date.now()}`
+      // Sau khi đăng ký thành công, tự động đăng nhập
+      const loginResponse = await authApi.login({
+        email: backendUser.email,
+        password: data.password,
+      })
 
-      const userData: User = {
-        id: newUser.id,
-        username: newUser.username,
-        email: newUser.email,
-        role: newUser.role as UserRole,
-        fullName: newUser.fullName,
-        balance: newUser.balance,
-      }
-
-      // Lưu token vào localStorage
-      localStorage.setItem('token', token)
-      localStorage.setItem('user', JSON.stringify(userData))
-
-      return {
-        token,
-        user: userData,
-      }
+      return loginResponse
     } catch (error: any) {
-      if (!error.response) {
-        const newError: any = new Error('Đăng ký thất bại. Vui lòng thử lại.')
-        newError.response = { data: { message: 'Đăng ký thất bại. Vui lòng thử lại.' } }
+      // Xử lý lỗi từ backend
+      if (error.response?.data?.message) {
+        const newError: any = new Error(error.response.data.message)
+        newError.response = error.response
         throw newError
       }
       throw error

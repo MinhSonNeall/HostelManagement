@@ -10,6 +10,7 @@ public class User {
     private String password;
     private String role;
     private Double balance;
+    private Boolean isActive;
     private Timestamp createdAt;
     private Timestamp updatedAt;
 
@@ -41,4 +42,6 @@ public class User {
     public void setCreatedAt(Timestamp createdAt) { this.createdAt = createdAt; }
     public Timestamp getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(Timestamp updatedAt) { this.updatedAt = updatedAt; }
+    public Boolean getIsActive() { return isActive; }
+    public void setIsActive(Boolean isActive) { this.isActive = isActive; }
 }

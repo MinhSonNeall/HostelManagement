@@ -10,21 +10,53 @@ const CreateRoom = () => {
   const { showNotification } = useNotification()
   const [loading, setLoading] = useState(false)
   const [formData, setFormData] = useState({
+    hostelId: 1,
     roomNumber: '',
     floor: 1,
-    area: 0,
-    price: 0,
-    status: 'AVAILABLE' as RoomStatus,
+    areaM2: 0,
+    pricePerMonth: 0,
+    depositAmount: 0,
+    maxOccupants: 1,
+    electricityPricePerKwh: 0,
+    waterPricePerM3: 0,
+    wifiFee: 0,
+    parkingFee: 0,
+    roomStatus: 'AVAILABLE' as RoomStatus,
+    hasAirConditioner: false,
+    hasWaterHeater: false,
+    hasPrivateBathroom: true,
+    hasKitchen: false,
+    allowPet: false,
     description: ''
   })
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value } = e.target
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => {
+    const target = e.target
+    const { name, value } = target
+    const isCheckbox =
+      target instanceof HTMLInputElement && target.type === 'checkbox'
+    const numericFields = [
+      'hostelId',
+      'floor',
+      'areaM2',
+      'pricePerMonth',
+      'depositAmount',
+      'maxOccupants',
+      'electricityPricePerKwh',
+      'waterPricePerM3',
+      'wifiFee',
+      'parkingFee',
+    ]
+
     setFormData(prev => ({
       ...prev,
-      [name]: name === 'floor' || name === 'area' || name === 'price' 
-        ? Number(value) 
-        : value
+      [name]: isCheckbox
+        ? target.checked
+        : numericFields.includes(name)
+          ? Number(value)
+          : value,
     }))
   }
 
@@ -36,12 +68,12 @@ const CreateRoom = () => {
       return
     }
 
-    if (formData.area <= 0) {
+    if (formData.areaM2 <= 0) {
       showNotification('Diện tích phải lớn hơn 0!', 'error')
       return
     }
 
-    if (formData.price <= 0) {
+    if (formData.pricePerMonth <= 0) {
       showNotification('Giá phòng phải lớn hơn 0!', 'error')
       return
     }
@@ -87,6 +119,21 @@ const CreateRoom = () => {
 
           <div className="form-row">
             <div className="form-group">
+              <label htmlFor="hostelId">ID Nhà Trọ *</label>
+              <input
+                type="number"
+                id="hostelId"
+                name="hostelId"
+                value={formData.hostelId}
+                onChange={handleChange}
+                required
+                min="1"
+              />
+            </div>
+          </div>
+
+          <div className="form-row">
+            <div className="form-group">
               <label htmlFor="floor">Tầng *</label>
               <input
                 type="number"
@@ -100,12 +147,12 @@ const CreateRoom = () => {
             </div>
 
             <div className="form-group">
-              <label htmlFor="area">Diện Tích (m²) *</label>
+              <label htmlFor="areaM2">Diện Tích (m²) *</label>
               <input
                 type="number"
-                id="area"
-                name="area"
-                value={formData.area}
+                id="areaM2"
+                name="areaM2"
+                value={formData.areaM2}
                 onChange={handleChange}
                 required
                 min="1"
@@ -115,31 +162,158 @@ const CreateRoom = () => {
           </div>
 
           <div className="form-group">
-            <label htmlFor="price">Giá Thuê (VNĐ/tháng) *</label>
+            <label htmlFor="pricePerMonth">Giá Thuê (VNĐ/tháng) *</label>
             <input
               type="number"
-              id="price"
-              name="price"
-              value={formData.price}
+              id="pricePerMonth"
+              name="pricePerMonth"
+              value={formData.pricePerMonth}
               onChange={handleChange}
               required
               min="1"
             />
           </div>
 
+          <div className="form-row">
+            <div className="form-group">
+              <label htmlFor="depositAmount">Tiền Cọc (VNĐ)</label>
+              <input
+                type="number"
+                id="depositAmount"
+                name="depositAmount"
+                value={formData.depositAmount}
+                onChange={handleChange}
+                min="0"
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="maxOccupants">Số Người Tối Đa</label>
+              <input
+                type="number"
+                id="maxOccupants"
+                name="maxOccupants"
+                value={formData.maxOccupants}
+                onChange={handleChange}
+                min="1"
+              />
+            </div>
+          </div>
+
           <div className="form-group">
-            <label htmlFor="status">Trạng Thái *</label>
+            <label htmlFor="roomStatus">Trạng Thái *</label>
             <select
-              id="status"
-              name="status"
-              value={formData.status}
+              id="roomStatus"
+              name="roomStatus"
+              value={formData.roomStatus}
               onChange={handleChange}
               required
             >
               <option value="AVAILABLE">Còn trống</option>
-              <option value="OCCUPIED">Đã thuê</option>
+              <option value="RENTED">Đã thuê</option>
               <option value="MAINTENANCE">Bảo trì</option>
             </select>
+          </div>
+
+          <div className="form-row">
+            <div className="form-group">
+              <label htmlFor="electricityPricePerKwh">Giá Điện (VNĐ/kWh)</label>
+              <input
+                type="number"
+                id="electricityPricePerKwh"
+                name="electricityPricePerKwh"
+                value={formData.electricityPricePerKwh}
+                onChange={handleChange}
+                min="0"
+              />
+            </div>
+            <div className="form-group">
+              <label htmlFor="waterPricePerM3">Giá Nước (VNĐ/m³)</label>
+              <input
+                type="number"
+                id="waterPricePerM3"
+                name="waterPricePerM3"
+                value={formData.waterPricePerM3}
+                onChange={handleChange}
+                min="0"
+              />
+            </div>
+          </div>
+
+          <div className="form-row">
+            <div className="form-group">
+              <label htmlFor="wifiFee">Phí Wifi (VNĐ)</label>
+              <input
+                type="number"
+                id="wifiFee"
+                name="wifiFee"
+                value={formData.wifiFee}
+                onChange={handleChange}
+                min="0"
+              />
+            </div>
+            <div className="form-group">
+              <label htmlFor="parkingFee">Phí Gửi Xe (VNĐ)</label>
+              <input
+                type="number"
+                id="parkingFee"
+                name="parkingFee"
+                value={formData.parkingFee}
+                onChange={handleChange}
+                min="0"
+              />
+            </div>
+          </div>
+
+          <div className="form-group checkbox-group">
+            <label>Tiện ích</label>
+            <div className="checkbox-row">
+              <label>
+                <input
+                  type="checkbox"
+                  name="hasAirConditioner"
+                  checked={formData.hasAirConditioner}
+                  onChange={handleChange}
+                />
+                Máy lạnh
+              </label>
+              <label>
+                <input
+                  type="checkbox"
+                  name="hasWaterHeater"
+                  checked={formData.hasWaterHeater}
+                  onChange={handleChange}
+                />
+                Máy nước nóng
+              </label>
+              <label>
+                <input
+                  type="checkbox"
+                  name="hasPrivateBathroom"
+                  checked={formData.hasPrivateBathroom}
+                  onChange={handleChange}
+                />
+                WC riêng
+              </label>
+              <label>
+                <input
+                  type="checkbox"
+                  name="hasKitchen"
+                  checked={formData.hasKitchen}
+                  onChange={handleChange}
+                />
+                Bếp riêng
+              </label>
+              <label>
+                <input
+                  type="checkbox"
+                  name="allowPet"
+                  checked={formData.allowPet}
+                  onChange={handleChange}
+                />
+                Cho phép thú cưng
+              </label>
+            </div>
           </div>
 
           <div className="form-group">

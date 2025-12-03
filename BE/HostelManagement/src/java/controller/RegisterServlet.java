@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import model.User;
+import service.AuthService;
 import service.UserService;
 import util.JSONHelper;
 
@@ -20,11 +21,13 @@ public class RegisterServlet extends HttpServlet {
 
     private static final long serialVersionUID = 1L;
     private UserService userService;
+    private AuthService authService;
 
     @Override
     public void init() throws ServletException {
         super.init();
         userService = new UserService();
+        authService = new AuthService();
     }
 
     @Override
@@ -74,7 +77,7 @@ public class RegisterServlet extends HttpServlet {
             user.setFullName(fullName);
             user.setEmail(email);
             user.setPhoneNumber(phoneNumber);
-            user.setPassword(password);
+            user.setPassword(authService.hashPassword(password));
             user.setRole(role);
             user.setBalance(0.0);
 

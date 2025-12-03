@@ -12,12 +12,12 @@ public class AuthService {
 
     private final UserDAO userDAO = new UserDAO();
 
-    public User authenticate(String username, String password) {
-        if (username == null || password == null) {
+    public User authenticate(String email, String password) {
+        if (email == null || password == null) {
             return null;
         }
 
-        User user = userDAO.findByEmailOrPhone(username);
+        User user = userDAO.findByEmail(email);
         if (user == null) {
             return null;
         }

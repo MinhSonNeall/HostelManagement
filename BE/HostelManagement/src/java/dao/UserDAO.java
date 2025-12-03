@@ -25,7 +25,7 @@ public class UserDAO {
     }
     
     public User findByEmailOrPhone(String emailOrPhone) {
-        String sql = "SELECT * FROM Users WHERE Email = ? OR PhoneNumber = ?";
+        String sql = "SELECT * FROM Users WHERE (Email = ? OR PhoneNumber = ?) AND IsActive = 1";
         try (Connection conn = DBContext.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, emailOrPhone);
@@ -73,7 +73,7 @@ public class UserDAO {
     }
     
     public int create(User user) {
-        String sql = "INSERT INTO Users (FullName, Email, PhoneNumber, PasswordHash, Role, AccountBalance) VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO Users (FullName, Email, PhoneNumber, PasswordHash, Role, AccountBalance, IsActive) VALUES (?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = DBContext.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             stmt.setString(1, user.getFullName());
@@ -82,6 +82,7 @@ public class UserDAO {
             stmt.setString(4, user.getPassword());
             stmt.setString(5, user.getRole());
             stmt.setDouble(6, user.getBalance() != null ? user.getBalance() : 0);
+            stmt.setBoolean(7, user.getIsActive() != null ? user.getIsActive() : true);
             stmt.executeUpdate();
             try (ResultSet rs = stmt.getGeneratedKeys()) {
                 if (rs.next()) {
@@ -95,7 +96,7 @@ public class UserDAO {
     }
     
     public boolean update(User user) {
-        String sql = "UPDATE Users SET FullName = ?, Email = ?, PhoneNumber = ?, Role = ?, AccountBalance = ?, UpdatedAt = SYSDATETIME() WHERE UserId = ?";
+        String sql = "UPDATE Users SET FullName = ?, Email = ?, PhoneNumber = ?, Role = ?, AccountBalance = ?, IsActive = ?, UpdatedAt = SYSDATETIME() WHERE UserId = ?";
         try (Connection conn = DBContext.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, user.getFullName());
@@ -103,7 +104,21 @@ public class UserDAO {
             stmt.setString(3, user.getPhoneNumber());
             stmt.setString(4, user.getRole());
             stmt.setDouble(5, user.getBalance() != null ? user.getBalance() : 0);
-            stmt.setInt(6, Integer.parseInt(user.getId()));
+            stmt.setBoolean(6, user.getIsActive() != null ? user.getIsActive() : true);
+            stmt.setInt(7, Integer.parseInt(user.getId()));
+            return stmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+    
+    public boolean updateActiveStatus(int userId, boolean isActive) {
+        String sql = "UPDATE Users SET IsActive = ?, UpdatedAt = SYSDATETIME() WHERE UserId = ?";
+        try (Connection conn = DBContext.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setBoolean(1, isActive);
+            stmt.setInt(2, userId);
             return stmt.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -145,6 +160,10 @@ public class UserDAO {
         user.setPassword(rs.getString("PasswordHash"));
         user.setRole(rs.getString("Role"));
         user.setBalance(rs.getDouble("AccountBalance"));
+        user.setIsActive(rs.getBoolean("IsActive"));
+        if (rs.wasNull()) {
+            user.setIsActive(true); // Default to active if null
+        }
         return user;
     }
 }

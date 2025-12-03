@@ -11,12 +11,18 @@ const RoomDetail = () => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
 
   // Memoized room images để tránh recalculate mỗi lần render
-  const roomImages = useMemo(() => [
-    room?.image || 'https://images.unsplash.com/photo-1555854877-bab0e564b8d5?w=800',
-    'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800',
-    'https://images.unsplash.com/photo-1574362848149-11496d93a7c7?w=800',
-    'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800'
-  ], [room?.image])
+  const roomImages = useMemo(() => {
+    if (room?.pictures && room.pictures.length > 0) {
+      return room.pictures.map((pic) => pic.pictureUrl)
+    }
+    if (room?.primaryPictureUrl) {
+      return [room.primaryPictureUrl]
+    }
+    if (room?.image) {
+      return [room.image]
+    }
+    return ['https://images.unsplash.com/photo-1555854877-bab0e564b8d5?w=800']
+  }, [room?.pictures, room?.primaryPictureUrl, room?.image])
 
   useEffect(() => {
     if (!id) return
@@ -26,7 +32,7 @@ const RoomDetail = () => {
         const mapped: Room = {
           ...apiRoom,
           title: apiRoom.title ?? (apiRoom.roomNumber ? `Phòng ${apiRoom.roomNumber}` : apiRoom.description ?? ''),
-          image: apiRoom.image ?? '',
+          image: apiRoom.image ?? apiRoom.primaryPictureUrl ?? '',
           amenities: apiRoom.amenities ?? [],
           rating: apiRoom.rating ?? 0,
         }

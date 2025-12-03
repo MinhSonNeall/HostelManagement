@@ -61,12 +61,19 @@ const RoomCard = ({ room, showAmenities = false }: RoomCardProps) => {
     ? room.amenities.slice(0, 3)
     : []
 
+  const displayImage =
+    (room.image && room.image.length > 0 ? room.image : undefined) ??
+    room.primaryPictureUrl ??
+    room.pictures?.find((pic) => pic.isPrimary)?.pictureUrl ??
+    room.pictures?.[0]?.pictureUrl ??
+    ''
+
   return (
     <div className="room-card">
       <div className="room-image">
-        {imageLoaded && room.image ? (
+        {imageLoaded && displayImage ? (
           <img 
-            src={room.image}
+            src={displayImage}
             alt={room.title ?? room.roomNumber ?? 'Phòng'}
             onError={handleImageError}
             loading="lazy"

@@ -15,6 +15,10 @@ import UpdateRoom from './pages/RoomManagement/UpdateRoom'
 import Tenants from './pages/Tenants/Tenants'
 import Login from './pages/Login/Login'
 import Register from './pages/Register/Register'
+import AdminDashboard from './pages/AdminDashboard/AdminDashboard'
+import AdminUsers from './pages/AdminUsers/AdminUsers'
+import AdminReviews from './pages/AdminReviews/AdminReviews'
+import AdminHostels from './pages/AdminHostels/AdminHostels'
 import './App.css'
 
 function App() {
@@ -32,12 +36,18 @@ function App() {
             <Route path="/roomlist" element={<GuestLayout><RoomList /></GuestLayout>} />
             <Route path="/rooms/:id" element={<GuestLayout><RoomDetail /></GuestLayout>} />
 
-            {/* Routes cho Admin */}
+            {/* Routes cho Hostel Owner */}
             <Route path="/owner/dashboard" element={<Layout><HostelOwnerDashboard /></Layout>} />
             <Route path="/owner/tenants" element={<Layout><Tenants /></Layout>} />
             <Route path="/owner/rooms" element={<Layout><RoomManagement /></Layout>} />
             <Route path="/owner/rooms/create" element={<Layout><CreateRoom /></Layout>} />
             <Route path="/owner/rooms/update/:id" element={<Layout><UpdateRoom /></Layout>} />
+
+            {/* Routes cho Admin */}
+            <Route path="/admin/dashboard" element={<Layout><AdminDashboard /></Layout>} />
+            <Route path="/admin/users" element={<Layout><AdminUsers /></Layout>} />
+            <Route path="/admin/reviews" element={<Layout><AdminReviews /></Layout>} />
+            <Route path="/admin/hostels" element={<Layout><AdminHostels /></Layout>} />
           </Routes>
         </Router>
       </NotificationProvider>

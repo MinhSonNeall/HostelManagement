@@ -7,7 +7,7 @@ import './Login.css'
 const Login = () => {
   const { login } = useAuth()
   const navigate = useNavigate()
-  const [username, setUsername] = useState('')
+  const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
@@ -18,12 +18,15 @@ const Login = () => {
     setLoading(true)
 
     try {
-      const user = await login({ username, password })
+      const user = await login({ email, password })
       
-      // Redirect dựa trên role
-      if (user.role === UserRole.HOSTEL_OWNER) {
+      // Redirect dựa trên role (khớp với DB: ADMIN, HOSTELOWNER, GUEST)
+      if (user.role === UserRole.ADMIN) {
+        navigate('/admin/dashboard')
+      } else if (user.role === UserRole.HOSTELOWNER) {
         navigate('/owner/dashboard')
-      } else if (user.role === UserRole.CUSTOMER) {
+      } else {
+        // GUEST hoặc các role khác
         navigate('/')
       }
     } catch (err: any) {
@@ -40,14 +43,14 @@ const Login = () => {
         <form onSubmit={handleSubmit} className="login-form">
           {error && <div className="error-message">{error}</div>}
           <div className="form-group">
-            <label htmlFor="username">Tên đăng nhập</label>
+            <label htmlFor="email">Email</label>
             <input
-              type="text"
-              id="username"
-              name="username"
-              placeholder="Nhập tên đăng nhập"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              type="email"
+              id="email"
+              name="email"
+              placeholder="Nhập email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               required
             />
           </div>

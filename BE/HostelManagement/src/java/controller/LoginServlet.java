@@ -41,26 +41,34 @@ public class LoginServlet extends HttpServlet {
         try {
             JsonObject jsonRequest = JSONHelper.parseJSONRequest(request);
             
-            String username = jsonRequest.get("username").getAsString();
-            String password = jsonRequest.get("password").getAsString();
+            String email = null;
+            if (jsonRequest.has("email") && !jsonRequest.get("email").isJsonNull()) {
+                email = jsonRequest.get("email").getAsString();
+            } else if (jsonRequest.has("username") && !jsonRequest.get("username").isJsonNull()) {
+                email = jsonRequest.get("username").getAsString(); // backward compatibility
+            }
+
+            String password = jsonRequest.has("password") && !jsonRequest.get("password").isJsonNull()
+                    ? jsonRequest.get("password").getAsString()
+                    : null;
 
             // Validate input
-            if (username == null || username.trim().isEmpty() || 
+            if (email == null || email.trim().isEmpty() || 
                 password == null || password.trim().isEmpty()) {
                 response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 Map<String, Object> errorResponse = new HashMap<>();
-                errorResponse.put("message", "Tên đăng nhập và mật khẩu không được để trống");
+                errorResponse.put("message", "Email và mật khẩu không được để trống");
                 out.print(JSONHelper.toJSON(errorResponse));
                 out.flush();
                 return;
             }
 
-            User user = authService.authenticate(username, password);
+            User user = authService.authenticate(email, password);
             
             if (user == null) {
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 Map<String, Object> errorResponse = new HashMap<>();
-                errorResponse.put("message", "Tên đăng nhập hoặc mật khẩu không đúng");
+                errorResponse.put("message", "Email hoặc mật khẩu không đúng");
                 out.print(JSONHelper.toJSON(errorResponse));
                 out.flush();
                 return;
