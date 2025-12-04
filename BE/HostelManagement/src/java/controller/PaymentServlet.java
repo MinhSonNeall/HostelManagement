@@ -8,6 +8,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import model.Payment;
 import service.PaymentService;
+import service.VietQRService;
+import service.BookingService;
 import util.JSONHelper;
 
 import java.io.IOException;
@@ -16,16 +18,20 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@WebServlet("/api/payments")
+@WebServlet("/api/payments/*")
 public class PaymentServlet extends HttpServlet {
 
     private static final long serialVersionUID = 1L;
     private PaymentService paymentService;
+    private VietQRService vietQRService;
+    private BookingService bookingService;
 
     @Override
     public void init() throws ServletException {
         super.init();
         paymentService = new PaymentService();
+        vietQRService = new VietQRService();
+        bookingService = new BookingService();
     }
 
     @Override
@@ -34,11 +40,104 @@ public class PaymentServlet extends HttpServlet {
 
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
-        response.setHeader("Access-Control-Allow-Origin", "*");
+        // CORS headers được xử lý bởi CorsFilter
 
         PrintWriter out = response.getWriter();
 
         try {
+            String pathInfo = request.getPathInfo();
+            
+            // Endpoint: /api/payments/qr?bookingId=xxx&amount=xxx
+            if (pathInfo != null && pathInfo.equals("/qr")) {
+                String bookingIdParam = request.getParameter("bookingId");
+                String amountParam = request.getParameter("amount");
+                
+                if (bookingIdParam == null || amountParam == null) {
+                    response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                    Map<String, Object> error = new HashMap<>();
+                    error.put("message", "Thiếu tham số bookingId hoặc amount");
+                    out.print(JSONHelper.toJSON(error));
+                    out.flush();
+                    return;
+                }
+                
+                int bookingId = Integer.parseInt(bookingIdParam);
+                double amount = Double.parseDouble(amountParam);
+                int randomCode = vietQRService.generateRandomCode();
+                
+                String qrUrl = vietQRService.generateQRCode(amount, bookingId, randomCode);
+                
+                if (qrUrl == null) {
+                    response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                    Map<String, Object> error = new HashMap<>();
+                    error.put("message", "Không thể tạo QR code");
+                    out.print(JSONHelper.toJSON(error));
+                    out.flush();
+                    return;
+                }
+                
+                Map<String, Object> result = new HashMap<>();
+                result.put("qrUrl", qrUrl);
+                result.put("bookingId", bookingId);
+                result.put("amount", amount);
+                result.put("code", randomCode);
+                
+                response.setStatus(HttpServletResponse.SC_OK);
+                out.print(JSONHelper.toJSON(result));
+                out.flush();
+                return;
+            }
+            
+            // Endpoint: /api/payments/check?bookingId=xxx&code=xxx&amount=xxx
+            if (pathInfo != null && pathInfo.equals("/check")) {
+                String bookingIdParam = request.getParameter("bookingId");
+                String codeParam = request.getParameter("code");
+                String amountParam = request.getParameter("amount");
+                
+                if (bookingIdParam == null || codeParam == null || amountParam == null) {
+                    response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                    Map<String, Object> error = new HashMap<>();
+                    error.put("message", "Thiếu tham số bookingId, code hoặc amount");
+                    out.print(JSONHelper.toJSON(error));
+                    out.flush();
+                    return;
+                }
+                
+                int bookingId = Integer.parseInt(bookingIdParam);
+                int code = Integer.parseInt(codeParam);
+                int amount = Integer.parseInt(amountParam);
+                
+                boolean isPaid = vietQRService.checkPaymentByBooking(bookingId, code, amount);
+                
+                Map<String, Object> result = new HashMap<>();
+                result.put("paid", isPaid);
+                result.put("bookingId", bookingId);
+                
+                if (isPaid) {
+                    // Cập nhật trạng thái booking và tạo payment record
+                    bookingService.updateStatus(bookingId, "CONFIRMED");
+                    
+                    // Tạo payment record
+                    Payment payment = new Payment();
+                    payment.setBookingId(bookingId);
+                    payment.setAmount(amount);
+                    payment.setPaymentMethod("VIETQR");
+                    payment.setNote("Thanh toán qua VietQR - Code: " + code);
+                    payment.setStatus("SUCCESS");
+                    paymentService.create(payment);
+                    
+                    result.put("message", "Thanh toán thành công!");
+                } else {
+                    result.put("message", "Chưa nhận được thanh toán");
+                }
+                
+                response.setStatus(HttpServletResponse.SC_OK);
+                out.print(JSONHelper.toJSON(result));
+                out.flush();
+                return;
+            }
+            
+            // Các endpoint GET thông thường
             String idParam = request.getParameter("id");
             String bookingIdParam = request.getParameter("bookingId");
 
@@ -84,9 +183,7 @@ public class PaymentServlet extends HttpServlet {
 
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
-        response.setHeader("Access-Control-Allow-Origin", "*");
-        response.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
-        response.setHeader("Access-Control-Allow-Headers", "Content-Type");
+        // CORS headers được xử lý bởi CorsFilter
 
         PrintWriter out = response.getWriter();
 
@@ -130,9 +227,7 @@ public class PaymentServlet extends HttpServlet {
 
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
-        response.setHeader("Access-Control-Allow-Origin", "*");
-        response.setHeader("Access-Control-Allow-Methods", "PUT, OPTIONS");
-        response.setHeader("Access-Control-Allow-Headers", "Content-Type");
+        // CORS headers được xử lý bởi CorsFilter
 
         PrintWriter out = response.getWriter();
 
@@ -169,9 +264,7 @@ public class PaymentServlet extends HttpServlet {
     @Override
     protected void doOptions(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        response.setHeader("Access-Control-Allow-Origin", "*");
-        response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, OPTIONS");
-        response.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+        // CORS headers được xử lý bởi CorsFilter
         response.setStatus(HttpServletResponse.SC_OK);
     }
 }

@@ -37,7 +37,10 @@ const normalizeHostel = (data: any): Hostel => ({
 export const hostelApi = {
   getById: async (hostelId: number): Promise<Hostel> => {
     const response = await apiClient.get(`/hostels/${hostelId}`)
-    return normalizeHostel(response.data)
+    const raw = response.data
+    // Một số API có thể trả về [{...}] thay vì {...}
+    const data = Array.isArray(raw) ? raw[0] : raw
+    return normalizeHostel(data || {})
   },
 
   getByOwner: async (ownerId: number): Promise<Hostel[]> => {

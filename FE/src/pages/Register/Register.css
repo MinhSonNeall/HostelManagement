@@ -125,6 +125,13 @@
   display: block;
 }
 
+.otp-input {
+  text-align: center;
+  font-size: 1.5rem;
+  letter-spacing: 0.5rem;
+  font-weight: bold;
+}
+
 @media (prefers-color-scheme: dark) {
   .register-container {
     background-color: #34495e;

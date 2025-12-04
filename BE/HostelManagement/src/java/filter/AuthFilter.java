@@ -31,9 +31,13 @@ public class AuthFilter implements Filter {
             return;
         }
         
-        //Allow login requests to pass without a token
+        //Allow public auth endpoints to pass without a token
         String path = req.getRequestURI();
-        if (path.endsWith("/api/auth/login")|| path.endsWith("/api/auth/register")){
+        if (path.endsWith("/api/auth/login") 
+                || path.endsWith("/api/auth/register")
+                || path.endsWith("/api/auth/verify-register-otp")
+                || path.endsWith("/api/auth/forgot-password")
+                || path.endsWith("/api/auth/reset-password")) {
             chain.doFilter(request, response);
             return;
         }
@@ -67,12 +71,23 @@ public class AuthFilter implements Filter {
      * mà không đi qua CorsFilter.
      */
     private void addCorsHeaders(HttpServletRequest req, HttpServletResponse res) {
+        // Phải luôn set origin cụ thể, không bao giờ dùng "*" khi có credentials
         String origin = req.getHeader("Origin");
-        if (origin != null && !origin.isEmpty()) {
-            res.setHeader("Access-Control-Allow-Origin", origin);
-        } else {
-            res.setHeader("Access-Control-Allow-Origin", "*");
+        if (origin == null || origin.isEmpty()) {
+            // Nếu không có origin, lấy từ Referer hoặc dùng mặc định
+            String referer = req.getHeader("Referer");
+            if (referer != null && !referer.isEmpty()) {
+                try {
+                    java.net.URL url = new java.net.URL(referer);
+                    origin = url.getProtocol() + "://" + url.getHost() + (url.getPort() != -1 ? ":" + url.getPort() : "");
+                } catch (Exception e) {
+                    origin = "http://localhost:5173";
+                }
+            } else {
+                origin = "http://localhost:5173";
+            }
         }
+        res.setHeader("Access-Control-Allow-Origin", origin);
         res.setHeader("Access-Control-Allow-Credentials", "true");
         res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
         res.setHeader("Access-Control-Allow-Headers", "Origin, Content-Type, Accept, Authorization");

@@ -34,7 +34,7 @@ public class RoomServlet extends HttpServlet {
 
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
-        response.setHeader("Access-Control-Allow-Origin", "*");
+        // CORS headers được xử lý bởi CorsFilter
 
         PrintWriter out = response.getWriter();
 
@@ -53,6 +53,7 @@ public class RoomServlet extends HttpServlet {
                 if (includePictures) {
                     roomService.attachPictures(room);
                 }
+                roomService.attachHostelInfo(room);
                 response.setStatus(HttpServletResponse.SC_OK);
                 out.print(JSONHelper.toJSON(room));
                 out.flush();
@@ -75,6 +76,7 @@ public class RoomServlet extends HttpServlet {
                 if (includePictures) {
                     roomService.attachPictures(room);
                 }
+                roomService.attachHostelInfo(room);
                 result = room;
             } else if (hostelIdParam != null) {
                 int hostelId = Integer.parseInt(hostelIdParam);
@@ -82,18 +84,21 @@ public class RoomServlet extends HttpServlet {
                 if (includePictures) {
                     rooms.forEach(roomService::attachPictures);
                 }
+                roomService.attachHostelInfo(rooms);
                 result = rooms;
             } else if (statusParam != null) {
                 List<Room> rooms = roomService.findByStatus(statusParam);
                 if (includePictures) {
                     rooms.forEach(roomService::attachPictures);
                 }
+                roomService.attachHostelInfo(rooms);
                 result = rooms;
             } else {
                 List<Room> rooms = roomService.findAll();
                 if (includePictures) {
                     rooms.forEach(roomService::attachPictures);
                 }
+                roomService.attachHostelInfo(rooms);
                 result = rooms;
             }
 
@@ -117,9 +122,7 @@ public class RoomServlet extends HttpServlet {
 
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
-        response.setHeader("Access-Control-Allow-Origin", "*");
-        response.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
-        response.setHeader("Access-Control-Allow-Headers", "Content-Type");
+        // CORS headers được xử lý bởi CorsFilter
 
         PrintWriter out = response.getWriter();
 
@@ -160,9 +163,7 @@ public class RoomServlet extends HttpServlet {
 
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
-        response.setHeader("Access-Control-Allow-Origin", "*");
-        response.setHeader("Access-Control-Allow-Methods", "PUT, OPTIONS");
-        response.setHeader("Access-Control-Allow-Headers", "Content-Type");
+        // CORS headers được xử lý bởi CorsFilter
 
         PrintWriter out = response.getWriter();
 
@@ -229,9 +230,7 @@ public class RoomServlet extends HttpServlet {
             throws ServletException, IOException {
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
-        response.setHeader("Access-Control-Allow-Origin", "*");
-        response.setHeader("Access-Control-Allow-Methods", "DELETE, OPTIONS");
-        response.setHeader("Access-Control-Allow-Headers", "Content-Type");
+        // CORS headers được xử lý bởi CorsFilter
 
         PrintWriter out = response.getWriter();
 
@@ -271,9 +270,7 @@ public class RoomServlet extends HttpServlet {
     @Override
     protected void doOptions(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        response.setHeader("Access-Control-Allow-Origin", "*");
-        response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-        response.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+        // CORS headers được xử lý bởi CorsFilter
         response.setStatus(HttpServletResponse.SC_OK);
     }
 

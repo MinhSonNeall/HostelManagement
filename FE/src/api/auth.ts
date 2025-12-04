@@ -69,10 +69,10 @@ export const authApi = {
     localStorage.removeItem('user')
   },
 
-  // Đăng ký tài khoản mới
-  register: async (data: RegisterData): Promise<LoginResponse> => {
+  // Đăng ký tài khoản mới - gửi OTP
+  register: async (data: RegisterData): Promise<{ message: string; success: boolean; email: string }> => {
     try {
-      // Gọi API đăng ký từ backend
+      // Gọi API đăng ký từ backend để gửi OTP
       const registerResponse = await apiClient.post('/auth/register', {
         fullName: data.fullName || data.username,
         email: data.email || data.username,
@@ -81,12 +81,33 @@ export const authApi = {
         role: data.role || 'GUEST',
       })
 
-      const backendUser = registerResponse.data
+      return registerResponse.data
+    } catch (error: any) {
+      // Xử lý lỗi từ backend
+      if (error.response?.data?.message) {
+        const newError: any = new Error(error.response.data.message)
+        newError.response = error.response
+        throw newError
+      }
+      throw error
+    }
+  },
 
-      // Sau khi đăng ký thành công, tự động đăng nhập
+  // Xác thực OTP và hoàn tất đăng ký
+  verifyRegisterOTP: async (email: string, otp: string, password: string): Promise<LoginResponse> => {
+    try {
+      // Gọi API verify OTP
+      const verifyResponse = await apiClient.post('/auth/verify-register-otp', {
+        email,
+        otp,
+      })
+
+      const backendUser = verifyResponse.data.user
+
+      // Sau khi verify thành công, tự động đăng nhập
       const loginResponse = await authApi.login({
         email: backendUser.email,
-        password: data.password,
+        password: password,
       })
 
       return loginResponse

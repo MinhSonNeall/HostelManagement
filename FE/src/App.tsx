@@ -19,6 +19,9 @@ import OwnerHostels from './pages/RoomManagement/OwnerHostels'
 import Tenants from './pages/Tenants/Tenants'
 import Login from './pages/Login/Login'
 import Register from './pages/Register/Register'
+import ForgotPassword from './pages/ForgotPassword/ForgotPassword'
+import ResetPassword from './pages/ResetPassword/ResetPassword'
+import Payment from './pages/Payment/Payment'
 import AdminDashboard from './pages/AdminDashboard/AdminDashboard'
 import AdminUsers from './pages/AdminUsers/AdminUsers'
 import AdminReviews from './pages/AdminReviews/AdminReviews'
@@ -61,6 +64,22 @@ function App() {
               } 
             />
             <Route 
+              path="/forgot-password" 
+              element={
+                <PublicRoute redirectIfAuthenticated="dashboard">
+                  <GuestLayout><ForgotPassword /></GuestLayout>
+                </PublicRoute>
+              } 
+            />
+            <Route 
+              path="/reset-password" 
+              element={
+                <PublicRoute redirectIfAuthenticated="dashboard">
+                  <GuestLayout><ResetPassword /></GuestLayout>
+                </PublicRoute>
+              } 
+            />
+            <Route 
               path="/rooms" 
               element={
                 <PublicRoute>
@@ -82,6 +101,14 @@ function App() {
                 <PublicRoute>
                   <GuestLayout><RoomDetail /></GuestLayout>
                 </PublicRoute>
+              } 
+            />
+            <Route 
+              path="/payment/:bookingId" 
+              element={
+                <ProtectedRoute allowedRoles={[UserRole.GUEST, UserRole.CUSTOMER]}>
+                  <GuestLayout><Payment /></GuestLayout>
+                </ProtectedRoute>
               } 
             />
 

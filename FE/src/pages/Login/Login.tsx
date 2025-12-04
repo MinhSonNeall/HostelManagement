@@ -70,9 +70,14 @@ const Login = () => {
             {loading ? 'Đang đăng nhập...' : 'Đăng Nhập'}
           </button>
         </form>
+        <div className="login-links">
+          <div className="forgot-password-link">
+            <Link to="/forgot-password">Quên mật khẩu?</Link>
+          </div>
         <div className="register-link">
           <span>Chưa có tài khoản? </span>
           <Link to="/register">Đăng ký</Link>
+          </div>
         </div>
       </div>
     </div>

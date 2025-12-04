@@ -121,8 +121,8 @@ const OwnerHostels = () => {
                 <div className="hostel-card-media">
                   <img src={coverImg} alt={hostel.hostelName} loading="lazy" />
                   <div className="hostel-card-badges">
-                    <span>{hostel.totalFloors} tầng</span>
-                    <span>{hostel.totalRooms} phòng</span>
+                <span>{hostel.totalFloors} tầng</span>
+                <span>{hostel.totalRooms} phòng</span>
                   </div>
                 </div>
 
@@ -156,23 +156,23 @@ const OwnerHostels = () => {
                       <span className="stat-label">Địa điểm</span>
                       <strong>{hostel.city || 'Chưa cập nhật'}</strong>
                     </div>
-                  </div>
+              </div>
 
                   <div className="hostel-card-actions">
                     <button
                       className="btn-secondary"
                       onClick={() => handleCreateRoom(hostel.hostelId)}
                     >
-                      + Thêm phòng
-                    </button>
+                  + Thêm phòng
+                </button>
                     <button
                       className="btn-outline btn-ghost"
                       onClick={() =>
                         navigate('/owner/rooms', { state: { hostelId: hostel.hostelId } })
                       }
                     >
-                      Quản lý phòng
-                    </button>
+                  Quản lý phòng
+                </button>
                     <button
                       className="btn-outline btn-ghost"
                       onClick={() => handleEditHostel(hostel.hostelId)}
@@ -186,8 +186,8 @@ const OwnerHostels = () => {
                     >
                       {deletingHostelId === hostel.hostelId ? 'Đang xóa...' : 'Xóa'}
                     </button>
-                  </div>
-                </div>
+              </div>
+            </div>
               </article>
             )
           })}

@@ -23,6 +23,15 @@ const normalizeRoom = (data: any): Room => {
     data.primaryPictureUrl ??
     data.image ??
     ''
+  
+  // Build address from hostel info
+  const addressParts = [
+    data.hostelAddress,
+    data.hostelWard,
+    data.hostelDistrict,
+    data.hostelCity,
+  ].filter(Boolean)
+  const fullAddress = addressParts.length > 0 ? addressParts.join(', ') : ''
 
   return {
     id: String(roomId),
@@ -50,6 +59,17 @@ const normalizeRoom = (data: any): Room => {
     allowPet: data.allowPet ?? false,
     pictures,
     primaryPictureUrl,
+    ownerId: data.hostelOwnerId ?? data.ownerId,
+    ownerName: data.hostelOwnerName ?? data.ownerName ?? '',
+    ownerEmail: data.hostelOwnerEmail ?? data.ownerEmail ?? '',
+    ownerPhone: data.hostelOwnerPhone ?? data.ownerPhone ?? '',
+    // Add hostel info for UI
+    address: fullAddress || data.address || '',
+    title: data.hostelName 
+      ? `${data.hostelName} - ${data.roomNumber ?? ''}`.trim()
+      : data.roomNumber 
+        ? `Phòng ${data.roomNumber}`
+        : '',
   }
 }
 

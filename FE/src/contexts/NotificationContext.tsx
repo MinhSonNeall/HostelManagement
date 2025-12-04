@@ -32,11 +32,15 @@ export const NotificationProvider = ({ children }: NotificationProviderProps) =>
   const [notifications, setNotifications] = useState<Notification[]>([])
 
   const showNotification = (message: string, type: NotificationType) => {
+    // Không tạo notification nếu message rỗng
+    if (!message || message.trim() === '') {
+      return
+    }
+    
     const id = Date.now().toString() + Math.random().toString(36).substr(2, 9)
     const notification: Notification = { id, message, type }
     
     setNotifications(prev => [...prev, notification])
-    
   }
 
   const removeNotification = (id: string) => {

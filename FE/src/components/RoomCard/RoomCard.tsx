@@ -32,18 +32,20 @@ const RoomCard = ({ room, showAmenities = false }: RoomCardProps) => {
   }, [])
 
   const renderStars = useCallback((rating?: number) => {
-    if (rating === undefined || rating === null) {
+    if (rating === undefined || rating === null || rating === 0) {
       return <div className="rating-stars">Chưa có đánh giá</div>
     }
 
-    const fullStars = Math.floor(Math.max(0, Math.min(5, rating)))
+    // Làm tròn rating về 1 chữ số sau dấu thập phân
+    const roundedRating = parseFloat(rating.toFixed(1))
+    const fullStars = Math.floor(Math.max(0, Math.min(5, roundedRating)))
     const emptyStars = 5 - fullStars
 
     return (
       <div className="rating-stars">
         {'★'.repeat(fullStars)}
         {'☆'.repeat(emptyStars)}
-        <span className="rating-number">({rating})</span>
+        <span className="rating-number">({roundedRating})</span>
       </div>
     )
   }, [])
@@ -77,6 +79,8 @@ const RoomCard = ({ room, showAmenities = false }: RoomCardProps) => {
             alt={room.title ?? room.roomNumber ?? 'Phòng'}
             onError={handleImageError}
             loading="lazy"
+            crossOrigin="anonymous"
+            referrerPolicy="no-referrer-when-downgrade"
           />
         ) : (
           <div className="image-placeholder" aria-label="Không thể tải ảnh">

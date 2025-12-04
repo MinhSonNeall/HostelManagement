@@ -3,7 +3,8 @@ import axios from 'axios'
 // Tạo instance axios với cấu hình mặc định
 const apiClient = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:9999/HostelManagement/api',
-  timeout: 10000,
+  timeout: 30000, // Tăng timeout lên 30 giây để đủ thời gian gửi email
+  withCredentials: true, // Cho phép gửi cookies để session hoạt động
   headers: {
     'Content-Type': 'application/json',
   },

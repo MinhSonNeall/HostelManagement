@@ -1,12 +1,11 @@
 // pages/GuestHome/GuestHome.tsx
-import { useState, useCallback } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useState, useCallback, useEffect } from 'react'
+import { useNavigate, Link } from 'react-router-dom'
 import SearchBar, { SearchFilters } from '../../components/SearchBar/SearchBar'
 import RoomCard, { Room as UiRoom } from '../../components/RoomCard/RoomCard'
 import './GuestHome.css'
-import { Link } from 'react-router-dom'
 import { roomApi } from '../../api/rooms'
-import { useEffect } from 'react'
+import { reviewApi } from '../../api/reviews'
 
 const GuestHome = () => {
   const [featuredRooms, setFeaturedRooms] = useState<UiRoom[]>([])
@@ -15,24 +14,49 @@ const GuestHome = () => {
   const navigate = useNavigate()
 
   useEffect(() => {
-    setLoading(true)
-    roomApi.getAll()
-      .then((apiRooms) => {
-        // Map API rooms to UI-friendly rooms (provide safe defaults)
+    const loadRoomsWithRatings = async () => {
+      setLoading(true)
+      try {
+        // Load rooms
+        const apiRooms = await roomApi.getAll()
+        
+        // Map rooms
         const mapped: UiRoom[] = apiRooms.map((r: any) => ({
           ...r,
           title: r.title ?? (r.roomNumber ? `Phòng ${r.roomNumber}` : r.description ?? ''),
           address: r.address ?? '',
           image: r.image ?? r.primaryPictureUrl ?? '',
           amenities: r.amenities ?? [],
-          rating: r.rating ?? 0,
+          // Rating sẽ được tính từ reviews
         }))
-        setFeaturedRooms(mapped)
-      })
-      .catch((err) => {
+
+        // Load reviews và tính average rating cho mỗi room
+        const roomsWithRatings = await Promise.all(
+          mapped.slice(0, 6).map(async (room) => {
+            try {
+              const reviews = await reviewApi.getByRoomId(room.roomId || parseInt(room.id))
+              if (reviews.length > 0) {
+                const avgRating = reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
+                // Làm tròn về 1 chữ số sau dấu thập phân
+                return { ...room, rating: parseFloat(avgRating.toFixed(1)) }
+              }
+              return { ...room, rating: 0 }
+            } catch (err) {
+              console.error(`Error loading reviews for room ${room.roomId}:`, err)
+              return { ...room, rating: 0 }
+            }
+          })
+        )
+
+        setFeaturedRooms(roomsWithRatings)
+      } catch (err: any) {
         setError(err?.message ?? 'Lỗi khi tải phòng')
-      })
-      .finally(() => setLoading(false))
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadRoomsWithRatings()
   }, [])
 
   const handleSearch = useCallback((filters: SearchFilters) => {

@@ -2,12 +2,17 @@ import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { authApi } from '../../api/auth'
 import { useAuth } from '../../contexts/AuthContext'
+import { useNotification } from '../../contexts/NotificationContext'
 import { UserRole } from '../../types'
 import './Register.css'
 
 const Register = () => {
   const navigate = useNavigate()
   const { setUser } = useAuth()
+  const { showNotification } = useNotification()
+  const [step, setStep] = useState<'register' | 'verify'>('register')
+  const [registerEmail, setRegisterEmail] = useState('')
+  const [registerPassword, setRegisterPassword] = useState('')
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
@@ -17,6 +22,7 @@ const Register = () => {
     // Role trong DB: GUEST hoặc HOSTELOWNER, mặc định GUEST
     role: UserRole.GUEST as UserRole,
   })
+  const [otp, setOtp] = useState('')
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
@@ -91,9 +97,10 @@ const Register = () => {
     return true
   }
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleRegisterSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setError('')
+    showNotification('', 'info') // Clear previous notifications
 
     // Validate tất cả các trường
     const newErrors: Record<string, string> = {}
@@ -149,32 +156,135 @@ const Register = () => {
 
       const response = await authApi.register(registerData)
 
-      // Cập nhật AuthContext với user mới đăng ký
-      // authApi.register() đã tự động login và lưu vào localStorage rồi,
-      // chỉ cần cập nhật state trong AuthContext
-      setUser(response.user)
-
-      // Redirect dựa trên role trả về từ backend (GUEST / HOSTELOWNER / ADMIN)
-      if (response.user.role === UserRole.HOSTELOWNER || response.user.role === UserRole.HOSTEL_OWNER) {
-        navigate('/owner/dashboard')
-      } else if (response.user.role === UserRole.ADMIN) {
-        navigate('/admin/dashboard')
+      if (response.success) {
+        // Lưu email và password để dùng ở bước verify
+        setRegisterEmail(formData.email)
+        setRegisterPassword(formData.password)
+        // Chuyển sang bước verify OTP
+        setStep('verify')
+        showNotification(response.message || 'Mã OTP đã được gửi đến email của bạn. Vui lòng kiểm tra hộp thư.', 'success')
       } else {
-        // GUEST hoặc các role khác về trang chủ
-        navigate('/')
+        setError(response.message || 'Không thể gửi mã OTP. Vui lòng thử lại.')
+        showNotification(response.message || 'Không thể gửi mã OTP. Vui lòng thử lại.', 'error')
       }
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Đăng ký thất bại. Vui lòng thử lại.')
+      const errorMessage = err.response?.data?.message || 'Đăng ký thất bại. Vui lòng thử lại.'
+      setError(errorMessage)
+      showNotification(errorMessage, 'error')
     } finally {
       setLoading(false)
     }
+  }
+
+  const handleVerifySubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    setError('')
+    showNotification('', 'info') // Clear previous notifications
+
+    if (otp.length !== 6) {
+      setError('Mã OTP phải có 6 chữ số')
+      showNotification('Mã OTP phải có 6 chữ số', 'error')
+      return
+    }
+
+    setLoading(true)
+
+    try {
+      const response = await authApi.verifyRegisterOTP(registerEmail, otp, registerPassword)
+
+      // Cập nhật AuthContext với user mới đăng ký
+      setUser(response.user)
+      showNotification('Đăng ký thành công!', 'success')
+
+      // Redirect dựa trên role trả về từ backend (GUEST / HOSTELOWNER / ADMIN)
+      setTimeout(() => {
+        if (response.user.role === UserRole.HOSTELOWNER || response.user.role === UserRole.HOSTEL_OWNER) {
+          navigate('/owner/dashboard')
+        } else if (response.user.role === UserRole.ADMIN) {
+          navigate('/admin/dashboard')
+        } else {
+          // GUEST hoặc các role khác về trang chủ
+          navigate('/')
+        }
+      }, 1000)
+    } catch (err: any) {
+      const errorMessage = err.response?.data?.message || 'Xác thực OTP thất bại. Vui lòng thử lại.'
+      setError(errorMessage)
+      showNotification(errorMessage, 'error')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  if (step === 'verify') {
+    return (
+      <div className="register">
+        <div className="register-container">
+          <h1>Xác Thực OTP</h1>
+          <p style={{ textAlign: 'center', color: '#666', marginBottom: '1.5rem' }}>
+            Mã OTP đã được gửi đến email <strong>{registerEmail}</strong>
+          </p>
+          <form onSubmit={handleVerifySubmit} className="register-form">
+            {error && <div className="error-message">{error}</div>}
+
+            <div className="form-group">
+              <label htmlFor="otp">Mã OTP</label>
+              <input
+                type="text"
+                id="otp"
+                name="otp"
+                placeholder="Nhập mã OTP 6 chữ số"
+                value={otp}
+                onChange={(e) => {
+                  const value = e.target.value.replace(/\D/g, '').slice(0, 6)
+                  setOtp(value)
+                }}
+                required
+                maxLength={6}
+                className="otp-input"
+                autoFocus
+              />
+            </div>
+
+            <button 
+              type="submit" 
+              className="register-button" 
+              disabled={loading || otp.length !== 6}
+            >
+              {loading ? 'Đang xử lý...' : 'Xác Thực'}
+            </button>
+
+            <div style={{ textAlign: 'center', marginTop: '1rem' }}>
+              <button
+                type="button"
+                onClick={() => {
+                  setStep('register')
+                  setOtp('')
+                  setError('')
+                }}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: '#3498db',
+                  cursor: 'pointer',
+                  textDecoration: 'underline',
+                  fontSize: '0.9rem',
+                }}
+              >
+                Quay lại đăng ký
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    )
   }
 
   return (
     <div className="register">
       <div className="register-container">
         <h1>Đăng Ký</h1>
-        <form onSubmit={handleSubmit} className="register-form">
+        <form onSubmit={handleRegisterSubmit} className="register-form">
           {error && <div className="error-message">{error}</div>}
 
           <div className="form-group">

@@ -90,9 +90,29 @@
   font-size: 0.9rem;
 }
 
+.login-links {
+  margin-top: 1.5rem;
+}
+
+.forgot-password-link {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.forgot-password-link a {
+  color: #3498db;
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: color 0.3s;
+}
+
+.forgot-password-link a:hover {
+  color: #2980b9;
+  text-decoration: underline;
+}
+
 .register-link {
   text-align: center;
-  margin-top: 1.5rem;
   color: #2c3e50;
   font-size: 0.9rem;
 }

@@ -10,6 +10,8 @@ public class Review {
     private String comment;
     private Timestamp createdAt;
     private Timestamp updatedAt;
+    // Additional fields for API response
+    private String customerName;
 
     public Review() {}
 
@@ -27,4 +29,6 @@ public class Review {
     public void setCreatedAt(Timestamp createdAt) { this.createdAt = createdAt; }
     public Timestamp getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(Timestamp updatedAt) { this.updatedAt = updatedAt; }
+    public String getCustomerName() { return customerName; }
+    public void setCustomerName(String customerName) { this.customerName = customerName; }
 }

@@ -28,6 +28,15 @@ public class Room {
     private Timestamp updatedAt;
     private List<RoomPicture> pictures = new ArrayList<>();
     private RoomPicture primaryPicture;
+    private String hostelName;
+    private String hostelAddress;
+    private String hostelWard;
+    private String hostelDistrict;
+    private String hostelCity;
+    private Integer hostelOwnerId;
+    private String hostelOwnerName;
+    private String hostelOwnerEmail;
+    private String hostelOwnerPhone;
 
     public Room() {}
 
@@ -94,5 +103,48 @@ public class Room {
 
     public void setPrimaryPicture(RoomPicture primaryPicture) {
         this.primaryPicture = primaryPicture;
+    }
+
+    public String getHostelName() { return hostelName; }
+    public void setHostelName(String hostelName) { this.hostelName = hostelName; }
+    public String getHostelAddress() { return hostelAddress; }
+    public void setHostelAddress(String hostelAddress) { this.hostelAddress = hostelAddress; }
+    public String getHostelWard() { return hostelWard; }
+    public void setHostelWard(String hostelWard) { this.hostelWard = hostelWard; }
+    public String getHostelDistrict() { return hostelDistrict; }
+    public void setHostelDistrict(String hostelDistrict) { this.hostelDistrict = hostelDistrict; }
+    public String getHostelCity() { return hostelCity; }
+    public void setHostelCity(String hostelCity) { this.hostelCity = hostelCity; }
+
+    public Integer getHostelOwnerId() {
+        return hostelOwnerId;
+    }
+
+    public void setHostelOwnerId(Integer hostelOwnerId) {
+        this.hostelOwnerId = hostelOwnerId;
+    }
+
+    public String getHostelOwnerName() {
+        return hostelOwnerName;
+    }
+
+    public void setHostelOwnerName(String hostelOwnerName) {
+        this.hostelOwnerName = hostelOwnerName;
+    }
+
+    public String getHostelOwnerEmail() {
+        return hostelOwnerEmail;
+    }
+
+    public void setHostelOwnerEmail(String hostelOwnerEmail) {
+        this.hostelOwnerEmail = hostelOwnerEmail;
+    }
+
+    public String getHostelOwnerPhone() {
+        return hostelOwnerPhone;
+    }
+
+    public void setHostelOwnerPhone(String hostelOwnerPhone) {
+        this.hostelOwnerPhone = hostelOwnerPhone;
     }
 }

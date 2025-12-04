@@ -35,7 +35,7 @@ public class BookingServlet extends HttpServlet {
 
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
-        response.setHeader("Access-Control-Allow-Origin", "*");
+        // CORS headers được xử lý bởi CorsFilter
 
         PrintWriter out = response.getWriter();
 
@@ -91,23 +91,26 @@ public class BookingServlet extends HttpServlet {
 
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
-        response.setHeader("Access-Control-Allow-Origin", "*");
-        response.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
-        response.setHeader("Access-Control-Allow-Headers", "Content-Type");
+        // CORS headers được xử lý bởi CorsFilter
 
         PrintWriter out = response.getWriter();
 
         try {
             JsonObject json = JSONHelper.parseJSONRequest(request);
+            System.out.println("BookingServlet: Received booking request: " + json.toString());
 
             Booking booking = new Booking();
             booking.setRoomId(json.get("roomId").getAsInt());
             booking.setCustomerId(json.get("customerId").getAsInt());
 
             // date format: "yyyy-MM-dd"
-            booking.setStartDate(Date.valueOf(json.get("startDate").getAsString()));
+            String startDateStr = json.get("startDate").getAsString();
+            System.out.println("BookingServlet: Start date: " + startDateStr);
+            booking.setStartDate(Date.valueOf(startDateStr));
+            
             if (json.has("endDate") && !json.get("endDate").isJsonNull()) {
-                booking.setEndDate(Date.valueOf(json.get("endDate").getAsString()));
+                String endDateStr = json.get("endDate").getAsString();
+                booking.setEndDate(Date.valueOf(endDateStr));
             }
 
             booking.setBookingStatus(json.has("bookingStatus")
@@ -120,8 +123,11 @@ public class BookingServlet extends HttpServlet {
                 booking.setTotalPrice(0);
             }
 
+            System.out.println("BookingServlet: Creating booking...");
             Booking created = bookingService.create(booking);
+            
             if (created == null) {
+                System.err.println("BookingServlet: Failed to create booking");
                 response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 Map<String, Object> error = new HashMap<>();
                 error.put("message", "Không tạo được booking");
@@ -130,8 +136,11 @@ public class BookingServlet extends HttpServlet {
                 return;
             }
 
+            System.out.println("BookingServlet: Booking created successfully with ID: " + created.getBookingId());
             response.setStatus(HttpServletResponse.SC_CREATED);
-            out.print(JSONHelper.toJSON(created));
+            String jsonResponse = JSONHelper.toJSON(created);
+            System.out.println("BookingServlet: Sending response: " + jsonResponse);
+            out.print(jsonResponse);
             out.flush();
 
         } catch (Exception e) {
@@ -150,9 +159,7 @@ public class BookingServlet extends HttpServlet {
 
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
-        response.setHeader("Access-Control-Allow-Origin", "*");
-        response.setHeader("Access-Control-Allow-Methods", "PUT, OPTIONS");
-        response.setHeader("Access-Control-Allow-Headers", "Content-Type");
+        // CORS headers được xử lý bởi CorsFilter
 
         PrintWriter out = response.getWriter();
 
@@ -189,9 +196,7 @@ public class BookingServlet extends HttpServlet {
     @Override
     protected void doOptions(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        response.setHeader("Access-Control-Allow-Origin", "*");
-        response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, OPTIONS");
-        response.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+        // CORS headers được xử lý bởi CorsFilter
         response.setStatus(HttpServletResponse.SC_OK);
     }
 }

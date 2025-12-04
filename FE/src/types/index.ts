@@ -25,6 +25,15 @@ export interface Room {
   allowPet?: boolean
   pictures?: RoomPicture[]
   primaryPictureUrl?: string
+  amenities?: string[] // Optional array for backward compatibility
+  ownerId?: number
+  ownerName?: string
+  ownerEmail?: string
+  ownerPhone?: string
+  title?: string // Optional UI field
+  address?: string // Optional UI field
+  image?: string // Optional UI field
+  rating?: number // Optional UI field
 }
 
 export interface RoomPicture {
